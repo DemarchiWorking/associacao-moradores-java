@@ -2,10 +2,10 @@
   <div class="container mx-auto">
     <div class="p-4 md:p-8">
       <div class="relative h-80 rounded-lg shadow-md">
-        <img src="../../../assets/publico.png" alt="Instituto Infonet Logo"  loading="lazy" class="absolute inset-0 w-full h-full object-cover rounded-t-2xl">
+        <img src="../../../assets/publico.png" alt="Capa do perfil do usuário" loading="lazy" class="absolute inset-0 w-full h-full object-cover rounded-t-2xl">
         <div class="absolute left-10 -bottom-32">
           <div class="w-64 h-64 bg-red-500 rounded-full border-4 border-white shadow-lg flex items-center justify-center">
-            <img src="https://www.llt.at/wp-content/uploads/2021/11/blank-profile-picture-g77b5d6651-1280-705x705.png"  loading="lazy" alt="Foto de Perfil" class="rounded-full w-full h-full object-cover">
+            <img [src]="usuarioLogado?.foto || 'https://www.llt.at/wp-content/uploads/2021/11/blank-profile-picture-g77b5d6651-1280-705x705.png'" loading="lazy" alt="Foto de Perfil do usuário" class="rounded-full w-full h-full object-cover">
           </div>
         </div>
       </div>
@@ -15,14 +15,14 @@
           <div class="w-64 mr-4"></div>
           <div class="flex-grow">
             <div class="flex items-center flex-wrap">
-              <h1 class="text-3xl font-bold text-gray-800 mr-2">{{ userProfile.name }} {{ userProfile.lastName }}</h1>
+              <h1 class="text-3xl font-bold text-gray-800 mr-2">{{ usuarioLogado?.nome }} {{ usuarioLogado?.sobrenome }}</h1>
               <div class="flex items-center space-x-2 mt-1">
                 <span *ngIf="userProfile.isAlumn" class="px-2 py-1 bg-blue-100 text-blue-800 text-xs font-semibold rounded-full">
-                  Aluno(a)tal
+                  Usuario
                 </span>
                 <div class="flex items-center text-green-500 text-sm font-semibold">
                   <span class="inline-block w-2 h-2 bg-green-500 rounded-full mr-1"></span>
-                  {{ userProfile.status }}
+                  {{ usuarioLogado?.status }}
                 </div>
               </div>
             </div>
@@ -72,20 +72,53 @@
         </nav>
       </div>
 
-      <div class="mt-8 px-4">
         <div *ngIf="activeTab === 'perfil'" class="bg-white p-6 rounded-lg shadow-md">
           <div class="flex justify-between items-center mb-4">
             <h2 class="text-xl font-semibold text-gray-800">Detalhes</h2>
-            <button class="text-blue-500 hover:text-blue-600 font-semibold">Editar</button>
+            <button *ngIf="!editandoPerfil"
+                    (click)="habilitarEdicao()"
+                    class="text-blue-500 hover:text-blue-600 font-semibold">
+              Editar
+            </button>
           </div>
-          <div class="grid grid-cols-1 gap-y-4">
+
+          <form *ngIf="editandoPerfil" [formGroup]="perfilForm" (ngSubmit)="salvarPerfil()">
+            <div class="mb-4">
+              <label for="nome" class="block text-sm font-medium">Nome</label>
+              <input id="nome" formControlName="nome" type="text" placeholder="Nome"
+                    class="border p-2 w-full rounded" />
+            </div>
+
+            <div class="mb-4">
+              <label for="sobrenome" class="block text-sm font-medium">Sobrenome</label>
+              <input id="sobrenome" formControlName="sobrenome" type="text" placeholder="Sobrenome"
+                    class="border p-2 w-full rounded" />
+            </div>
+
+            <div class="mb-4">
+              <label for="foto" class="block text-sm font-medium">Foto</label>
+              <input id="foto" formControlName="foto" type="text" placeholder="URL da foto"
+                    class="border p-2 w-full rounded" />
+            </div>
+
+            <div class="flex gap-2">
+              <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Salvar</button>
+              <button type="button" (click)="cancelarEdicao()" class="bg-gray-300 px-4 py-2 rounded">Cancelar</button>
+            </div>
+          </form>
+
+          <div *ngIf="!editandoPerfil" class="grid grid-cols-1 gap-y-4">
             <div class="flex flex-col">
               <span class="text-sm font-medium text-gray-500">Nome</span>
-              <span class="mt-1 text-gray-800">{{ userProfile.name }}</span>
+              <span class="mt-1 text-gray-800">{{ usuarioLogado?.nome }}</span>
             </div>
             <div class="flex flex-col">
               <span class="text-sm font-medium text-gray-500">Sobrenome</span>
-              <span class="mt-1 text-gray-800">{{ userProfile.lastName }}</span>
+              <span class="mt-1 text-gray-800">{{ usuarioLogado?.sobrenome }}</span>
+            </div>
+            <div class="flex flex-col">
+              <span class="text-sm font-medium text-gray-500">Foto</span>
+              <span class="mt-1 text-gray-800">{{ usuarioLogado?.foto }}</span>
             </div>
           </div>
         </div>
@@ -99,30 +132,30 @@
               </div>
 
               <div class="flex justify-between items-center mb-4">
-                <h3 class="text-lg font-semibold text-gray-700">15 Produtos</h3>
+                <h3 class="text-lg font-semibold text-gray-700">{{ produtos.length }} Produtos</h3>
                 <button class="px-2 py-1 bg-gray-200 text-gray-600 rounded">⋮</button>
               </div>
-
-            
+              
               <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-    <a *ngFor="let produto of produtoo" [routerLink]="['/detalhes-produto', produto.id]" class="block bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300">
-      <img [src]="produto.imagem" alt="Imagem do Produto" class="w-full h-32 object-cover rounded mb-4">
-        <h3 class="text-md font-medium text-gray-800">{{ produto.nome }}</h3>
-        <p class="text-sm text-gray-500">{{ produto.categoria }} Etapas</p>
-        <div class="mt-2">
-            <span
-                [ngClass]="{
-                    'bg-green-100 text-green-800': produto.quantidade > 0,
-                    'bg-blue-100 text-blue-800': produto.quantidade == 0
-                }"
-                class="px-2 py-1 text-xs font-semibold rounded-full"
-            >
-                {{ produto.preco }}
-            </span>
-        </div>
-        <p class="text-sm text-gray-600 mt-1">{{ produto.preco }}</p>
-    </a>
-</div>
+                <a *ngFor="let produto of produtos" [routerLink]="['/detalhes-produto', produto.id]" class="block bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300">
+                  <img [src]="produto.imagem" [alt]="'Imagem do produto ' + produto.nome" class="w-full h-32 object-cover rounded mb-4">
+                  <h3 class="text-md font-medium text-gray-800">{{ produto.nome }}</h3>
+                  <p class="text-sm text-gray-500">{{ produto.steps }} Etapas</p>
+                  <div class="mt-2">
+                    <span
+                      [ngClass]="{
+                        'bg-green-100 text-green-800': produto.status === 'Concluído',
+                        'bg-yellow-100 text-yellow-800': produto.status === 'Em Andamento',
+                        'bg-blue-100 text-blue-800': produto.status === 'Iniciar Trilha'
+                      }"
+                      class="px-2 py-1 text-xs font-semibold rounded-full"
+                    >
+                      {{ produto.status }}
+                    </span>
+                  </div>
+                  <p class="text-sm text-gray-600 mt-1">{{ produto.preco | currency:'BRL':'symbol':'1.2-2' }}</p>
+                </a>
+              </div>
             </div>
           </div>
         </div>
@@ -134,10 +167,3 @@
       </div>
     </div>
   </div>
-</div>
-<!--
-                      [ngClass]="{
-                        'bg-green-100 text-green-800': produto.quantidade === 'Concluído',
-                        'bg-yellow-100 text-yellow-800': produto.status === 'Em Andamento',
-                        'bg-blue-100 text-blue-800': produto.status === 'Iniciar Trilha'
-                      }"-->

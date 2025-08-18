@@ -18,8 +18,6 @@ import { finalize } from 'rxjs/operators';
   styleUrl: './editar-produto.component.scss'
 })
 export class EditarProdutoComponent {
-
-
   produtoForm!: FormGroup;
   categoriaForm!: FormGroup;
 
@@ -46,8 +44,8 @@ export class EditarProdutoComponent {
     // 2. Inicializa o formulário do produto com os campos e validadores.
     this.produtoForm = this.fb.group({
       nome: ['', Validators.required],
-      categoria: [null, Validators.required], // Mudei para 'null' para melhor tipagem
-      categoriaId: [null], // Mudei para 'null' para melhor tipagem
+      categoria: [null, Validators.required],
+      categoriaId: [null],
       preco: [null, [Validators.required, Validators.min(0.01)]],
       imagem: ['', Validators.required],
       descricao: ['', Validators.required],
@@ -63,7 +61,6 @@ export class EditarProdutoComponent {
     this.carregarDadosParaEdicao();
   }
 
-  // Novo método para orquestrar o carregamento dos dados
   private carregarDadosParaEdicao(): void {
     if (this.produtoId) {
       // 5. Primeiro, busque todas as categorias.
@@ -99,7 +96,6 @@ export class EditarProdutoComponent {
   get categoriaIconeControl(): AbstractControl | null {
     return this.categoriaForm.get('icone');
   }
-
 
   cadastrarCategoria() {
     this.message = null;
@@ -147,7 +143,6 @@ export class EditarProdutoComponent {
     }
   }
 
-  // Alterei este método para aceitar um callback, garantindo que o próximo passo só ocorra após o sucesso.
   buscarTodasCategorias(onSuccess?: () => void) {
     const token = this.authService.getTokenLocalStorage();
 
@@ -161,7 +156,6 @@ export class EditarProdutoComponent {
           next: (categorias) => {
             console.log('Todas as Categorias:', categorias);
             this.listaDeCategorias = categorias;
-            // Chama o callback de sucesso se ele existir.
             if (onSuccess) {
               onSuccess();
             }
@@ -177,7 +171,6 @@ export class EditarProdutoComponent {
     }
   }
 
-
   buscarProdutoParaEdicao(id: string): void {
     const token = this.authService.getTokenLocalStorage();
     if (token) {
@@ -187,15 +180,18 @@ export class EditarProdutoComponent {
       this.http.get<any>(`${this.API_PRODUTOS}/${id}`, { headers }).subscribe({
         next: (produto) => {
           console.log('Dados do produto para edição:', produto);
-          // Preenche o formulário com os dados do produto obtido.
-          // Assumimos que a resposta da API do produto já contém o objeto de categoria completo.
+          // Encontrar o objeto da categoria correspondente na listaDeCategorias
+          const categoriaSelecionada = this.listaDeCategorias.find(
+            cat => cat.nome === produto.categoria
+          );
+          // Preenche o formulário com os dados do produto obtido
           this.produtoForm.patchValue({
             nome: produto.nome,
             preco: produto.preco,
             descricao: produto.descricao,
             imagem: produto.imagem,
-            // Preenche o campo 'categoria' com o objeto completo.
-            categoria: produto.categoria,
+            categoria: categoriaSelecionada || null, // Usa o objeto da categoria ou null se não encontrado
+            categoriaId: categoriaSelecionada ? categoriaSelecionada.id : null
           });
         },
         error: (err) => {
@@ -206,65 +202,65 @@ export class EditarProdutoComponent {
       });
     }
   }
-  
+
   editarProduto() {
-  this.message = null;
-  this.isError = false;
-  const token = this.authService.getTokenLocalStorage();
+    this.message = null;
+    this.isError = false;
+    const token = this.authService.getTokenLocalStorage();
 
-  if (!this.produtoId) {
-    console.error('ID do produto não está disponível para edição.');
-    this.message = 'Erro: ID do produto não está disponível para edição.';
-    this.isError = true;
-    return;
-  }
-
-  if (token && this.produtoForm.valid) {
-    const headers = new HttpHeaders({
-      'Authorization': `Bearer ${token}`
-    });
-
-    // Verifica se categoria foi selecionada
-    if (!this.produtoForm.value.categoria || !this.produtoForm.value.categoria.id) {
-      this.message = 'Por favor, selecione uma categoria válida.';
+    if (!this.produtoId) {
+      console.error('ID do produto não está disponível para edição.');
+      this.message = 'Erro: ID do produto não está disponível para edição.';
       this.isError = true;
-      this.produtoForm.markAllAsTouched();
       return;
     }
 
-    // Cria o objeto com os dados do formulário
-    const produtoAtualizado = {
-      ...this.produtoForm.value,
-      categoria: this.produtoForm.value.categoria.nome,
-      categoriaId: this.produtoForm.value.categoria.id
-    };
-    delete produtoAtualizado.categoria;
-    console.log('Payload enviado para a API:', produtoAtualizado);
-
-    this.http.patch<any>(`${this.API_PRODUTOS}/${this.produtoId}`, produtoAtualizado, { headers: headers })
-      .subscribe({
-        next: (response) => {
-          this.message = `Produto "${response.nome}" atualizado com sucesso!`;
-          this.isError = false;
-          console.log('Produto atualizado:', response);
-        },
-        error: (error) => {
-          this.isError = true;
-          if (error.error && error.error.message) {
-            this.message = `Erro ao atualizar produto: ${error.error.message}`;
-          } else {
-            this.message = 'Erro desconhecido ao atualizar produto. Por favor, tente novamente.';
-          }
-          console.error('Erro ao atualizar produto:', error);
-        }
+    if (token && this.produtoForm.valid) {
+      const headers = new HttpHeaders({
+        'Authorization': `Bearer ${token}`
       });
-  } else {
-    this.isError = true;
-    this.message = 'Por favor, preencha todos os campos do produto corretamente.';
-    this.produtoForm.markAllAsTouched();
+
+      // Verifica se categoria foi selecionada
+      if (!this.produtoForm.value.categoria || !this.produtoForm.value.categoria.id) {
+        this.message = 'Por favor, selecione uma categoria válida.';
+        this.isError = true;
+        this.produtoForm.markAllAsTouched();
+        return;
+      }
+
+      // Cria o objeto com os dados do formulário
+      const produtoAtualizado = {
+        ...this.produtoForm.value,
+        categoria: this.produtoForm.value.categoria.nome, // Envia apenas o nome da categoria
+        categoriaId: this.produtoForm.value.categoria.id
+      };
+      //delete produtoAtualizado.categoria; // Remove o campo categoria para evitar duplicação
+      console.log('Payload enviado para a API:', produtoAtualizado);
+
+      this.http.patch<any>(`${this.API_PRODUTOS}/${this.produtoId}`, produtoAtualizado, { headers: headers })
+        .subscribe({
+          next: (response) => {
+            this.message = `Produto "${response.nome}" atualizado com sucesso!`;
+            this.isError = false;
+            console.log('Produto atualizado:', response);
+          },
+          error: (error) => {
+            this.isError = true;
+            if (error.error && error.error.message) {
+              this.message = `Erro ao atualizar produto: ${error.error.message}`;
+            } else {
+              this.message = 'Erro desconhecido ao atualizar produto. Por favor, tente novamente.';
+            }
+            console.error('Erro ao atualizar produto:', error);
+          }
+        });
+    } else {
+      this.isError = true;
+      this.message = 'Por favor, preencha todos os campos do produto corretamente.';
+      this.produtoForm.markAllAsTouched();
+    }
   }
-}
-  
+
   onSubmitProduto() {
     this.editarProduto();
   }

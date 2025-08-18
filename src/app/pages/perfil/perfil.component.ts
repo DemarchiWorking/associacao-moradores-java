@@ -1,112 +1,245 @@
-import { NgClass, NgFor, NgIf } from '@angular/common';
-import { Component, OnInit } from '@angular/core'; // Adicione OnInit, pois você tem o ngOnInit
+import { NgClass, NgFor, NgIf, CommonModule } from '@angular/common';
+import { Component, OnInit } from '@angular/core';
 import { AuthService } from '../../services/autenticacao/auth.service';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Router, RouterLink } from '@angular/router'; // Importe RouterLink
+import { Router, RouterLink } from '@angular/router';
+import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { Observable } from 'rxjs';
 
-interface UserProfile {
-  name: string;
-  lastName: string;
-  status: 'Online agora' | 'Offline';
-  profilePicture: string; // URL da imagem
-  coverPhoto: string; // URL da imagem de capa (se fosse uma imagem)
-  isAlumn: boolean;
+interface Perfil {
+  nome: string;
+  sobrenome: string;
+  status: string;
+  foto: string;
+  profilePicture: string;
+  coverPhoto: string;
+  isAlumn: boolean;
 }
-interface Produtos {
-  id: number;
-  title: string;
-  steps: number;
-  status: 'Iniciar Trilha' | 'Concluído' | 'Em Andamento';
-  completion: string;
-  lastActivity: string;
-}
+
 interface Produto {
-  id: string;
-  nome: string;
-  preco: number;
-  categoria: string;
-  quantidade: number;
-  imagem: string;
-  icone: string | null;
-  dataCriacao: string;
+  id: string;
+  nome: string;
+  preco: number;
+  categoria: string;
+  quantidade: number;
+  imagem: string;
+  icone: string | null;
+  dataCriacao: string;
+  steps: number;
+  status: 'Iniciar Trilha' | 'Concluído' | 'Em Andamento';
+  title: string;
+  completion: string;
+  lastActivity: string;
 }
 
 @Component({
-  selector: 'app-perfil',
-  standalone: true,
-  imports: [NgClass, NgIf, NgFor, RouterLink], // Adicione RouterLink aqui
-  templateUrl: './perfil.component.html',
-  styleUrl: './perfil.component.scss'
+  selector: 'app-perfil',
+  standalone: true,
+  imports: [NgClass, NgIf, NgFor, RouterLink, ReactiveFormsModule, CommonModule],
+  templateUrl: './perfil.component.html',
+  styleUrl: './perfil.component.scss'
 })
 export class PerfilComponent implements OnInit {
-  private apiUrl = 'http://localhost:8081/api/produtos/meus-produtos';
+  private apiUrl = 'http://localhost:8081/api/produtos/meus-produtos';
+  private apiUsuario = 'http://localhost:8081/api/usuarios/logado';
+  private apiAlterarUsuario = 'http://localhost:8081/api/usuarios/alterar';
 
-userProfile: UserProfile = {
-    name: 'Tommy',
-    lastName: 'Dmrch',
-    status: 'Online agora',
-    profilePicture: 'https://via.placeholder.com/150', // Substitua pela URL da sua foto de perfil
-    coverPhoto: 'https://via.placeholder.com/1200x400', // URL do banner original, se necessário
-    isAlumn: true
-  };
-  produtos: Produtos[] = [
-      { id: 1, title: 'Inteligência Artificial: Clusterização', steps: 9, status: 'Iniciar Trilha', completion: '0% Completo', lastActivity: '19/07/2025 13:36' },
-      { id: 2, title: 'Inteligência Artificial: Classificação', steps: 9, status: 'Iniciar Trilha', completion: '0% Completo', lastActivity: '20/07/2025 13:52' },
-      { id: 3, title: 'Programação Distribuída com Red...', steps: 9, status: 'Concluído', completion: '100% Completo', lastActivity: '11/02/2025 09:46' },
-      { id: 4, title: 'Estruturas de Dados e Algoritmos Avançados', steps: 9, status: 'Em Andamento', completion: '67% Completo', lastActivity: '31/03/2025 00:56' },
-      { id: 5, title: 'Projeto de Bloco: Engenharia de...', steps: 10, status: 'Iniciar Trilha', completion: '0% Completo', lastActivity: '0/0 Etapas' },
-      { id: 6, title: 'Domain-Driven Design (DDD) e Arquitetura...', steps: 9, status: 'Em Andamento', completion: '23% Completo', lastActivity: '11/08/2024 11:02' },
-      { id: 7, title: 'Desenvolvimento de Serviços com Spring...', steps: 9, status: 'Iniciar Trilha', completion: '0% Completo', lastActivity: '01/05/2024 05:53' },
-      { id: 8, title: 'Design Patterns e Domain-Driven Desi...', steps: 9, status: 'Em Andamento', completion: '44% Completo', lastActivity: '30/05/2024 12:00' }
-    ];
-  produtoo: Produto[] = [];
+  usuarioLogado: Perfil | null = null;
+  perfilForm!: FormGroup;
+  editandoPerfil = false;
 
-  activeTab: 'perfil' | 'produtos' | 'vendas' = 'perfil';
+  isLoading: boolean = true;
+  message: string | null = null;
+  isError: boolean = false;
 
-  constructor(
-        private authService: AuthService,
-        private http: HttpClient,
-        private router: Router,
-  ) { }
+  userProfile: Perfil = {
+    nome: 'Tommy',
+    foto: 'https://via.placeholder.com/150',
+    sobrenome: 'Dmrch',
+    status: 'Online agora',
+    profilePicture: 'https://via.placeholder.com/150',
+    coverPhoto: 'https://via.placeholder.com/1200x400',
+    isAlumn: true
+  };
 
-  ngOnInit(): void {
-    this.carregarProdutos();
+  produtos: Produto[] = [];
 
-  }
+  activeTab: 'perfil' | 'produtos' | 'vendas' = 'perfil';
 
-  carregarProdutos(): void {
-    const token = this.authService.getTokenLocalStorage();
-    console.log('Token de autenticação:', token);
+  constructor(
+    private authService: AuthService,
+    private http: HttpClient,
+    private router: Router,
+    private fb: FormBuilder,
+  ) { }
 
-    if (token) {
-      // Criando o cabeçalho de autorização com o token Bearer
-      const headers = new HttpHeaders({
-        'Authorization': `Bearer ${token}`
-      });
+  ngOnInit(): void {
+    // Inicializa o formulário no ngOnInit
+    this.perfilForm = this.fb.group({
+      nome: [''],
+      sobrenome: [''],
+      foto: ['']
+    });
 
-      // Fazendo a requisição GET para a API com os cabeçalhos
-      // Note que a URL é apenas 'this.apiUrl', pois ela já contém o endpoint completo.
-      this.http.get<Produto[]>(this.apiUrl, { headers: headers })
-        .subscribe({
-          next: (data) => {
-            this.produtoo = data;
-            console.log('Produtos carregados com sucesso:', this.produtoo);
-          },
-          error: (error) => {
-            console.error('Erro ao carregar produtos:', error);
-            // Opcional: Tratar erros específicos, como token expirado (401)
-            if (error.status === 401 || error.status === 403) {
-              console.log('Token inválido ou expirado. Redirecionando para o login.');
-              this.router.navigate(['/login']);
-            }
-          }
-        });
-    } else {
-      console.error('Nenhum token de autenticação encontrado. O usuário precisa fazer login.');
-      this.router.navigate(['/login']);
-    }
-  }
-  setActiveTab(tab: 'perfil' | 'produtos' | 'vendas'): void {
-    this.activeTab = tab;
-  }
+    this.carregarProdutos();
+    this.fetchUsuarioLogado();
+  }
+
+  fetchUsuarioLogado(): void {
+    this.isLoading = true;
+    this.message = null;
+    this.isError = false;
+
+    const token = this.authService.getTokenLocalStorage();
+
+    if (!token) {
+      this.message = 'Erro: Nenhum token de autenticação encontrado. Por favor, faça login.';
+      this.isError = true;
+      this.isLoading = false;
+      return;
+    }
+
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`
+    });
+
+    this.http.get<any>(this.apiUsuario, { headers })
+      .subscribe({
+        next: (usuario) => {
+          let primeiroNome = usuario.nome;
+          let sobrenome = '';
+
+          // Verifica se o nome completo tem um espaço para dividir em nome e sobrenome
+          if (usuario.nome && typeof usuario.nome === 'string' && usuario.nome.includes(' ')) {
+            const nomeCompleto = usuario.nome.split(' ');
+            primeiroNome = nomeCompleto[0];
+            sobrenome = nomeCompleto.slice(1).join(' ');
+          }
+
+          this.usuarioLogado = {
+            ...usuario,
+            nome: primeiroNome,
+            sobrenome: sobrenome,
+            foto: usuario.foto || 'https://www.llt.at/wp-content/uploads/2021/11/blank-profile-picture-g77b5d6651-1280-705x705.png',
+          };
+          
+          if (this.usuarioLogado) {
+            this.perfilForm.patchValue({
+              nome: this.usuarioLogado.nome,
+              sobrenome: this.usuarioLogado.sobrenome,
+              foto: this.usuarioLogado.foto
+            });
+          }
+
+          this.isLoading = false;
+          console.log('Dados do usuário logado:', this.usuarioLogado);
+        },
+        error: (error) => {
+          this.isError = true;
+          this.isLoading = false;
+          if (error.status === 401) {
+            this.message = 'Sessão expirada ou não autorizada. Por favor, faça login novamente.';
+          } else {
+            this.message = 'Erro ao buscar dados do usuário. Por favor, tente novamente.';
+          }
+          console.error('Erro na requisição:', error);
+        }
+      });
+  }
+
+  carregarProdutos(): void {
+    const token = this.authService.getTokenLocalStorage();
+    console.log('Token de autenticação:', token);
+
+    if (token) {
+      const headers = new HttpHeaders({
+        'Authorization': `Bearer ${token}`
+      });
+
+      this.http.get<Produto[]>(this.apiUrl, { headers: headers })
+        .subscribe({
+          next: (data) => {
+            this.produtos = data;
+            console.log('Produtos carregados com sucesso:', this.produtos);
+          },
+          error: (error) => {
+            console.error('Erro ao carregar produtos:', error);
+            if (error.status === 401 || error.status === 403) {
+              console.log('Token inválido ou expirado. Redirecionando para o login.');
+              this.router.navigate(['/login']);
+            }
+          }
+        });
+    } else {
+      console.error('Nenhum token de autenticação encontrado. O usuário precisa fazer login.');
+      this.router.navigate(['/login']);
+    }
+  }
+  
+  habilitarEdicao(): void {
+    this.editandoPerfil = true;
+  }
+
+  salvarPerfil(): void {
+    if (this.perfilForm.valid) {
+      const dadosAtualizados = this.perfilForm.value;
+      const token = this.authService.getTokenLocalStorage();
+
+      if (!token) {
+        this.message = 'Erro: Nenhum token de autenticação encontrado.';
+        this.isError = true;
+        return;
+      }
+
+      const headers = new HttpHeaders({
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      });
+      
+      // Concatena nome e sobrenome em um único campo 'nome'
+      const nomeCompleto = dadosAtualizados.sobrenome ? 
+                           `${dadosAtualizados.nome} ${dadosAtualizados.sobrenome}` : 
+                           dadosAtualizados.nome;
+
+      // Cria um novo objeto com o nome completo para enviar à API
+      const dadosParaEnviar = { ...dadosAtualizados, nome: nomeCompleto };
+
+      this.http.patch<Perfil>(this.apiAlterarUsuario, dadosParaEnviar, { headers })
+        .subscribe({
+          next: (usuarioAtualizado) => {
+            // Se a requisição for bem-sucedida, atualiza o objeto local
+            // para que a interface reflita as mudanças.
+            this.usuarioLogado = { ...this.usuarioLogado, ...usuarioAtualizado };
+            this.editandoPerfil = false;
+            this.message = 'Perfil atualizado com sucesso!';
+            this.isError = false;
+            console.log('Perfil salvo com sucesso:', usuarioAtualizado);
+            
+            // Recarrega a página após o salvamento bem-sucedido
+            window.location.reload();
+          },
+          error: (error) => {
+            this.isError = true;
+            this.message = 'Erro ao salvar o perfil. Tente novamente.';
+            console.error('Erro na requisição de atualização:', error);
+          }
+        });
+    }
+  }
+
+  cancelarEdicao(): void {
+    this.editandoPerfil = false;
+    // Restaura os valores do formulário para os dados originais do usuário
+    if (this.usuarioLogado) {
+        this.perfilForm.patchValue({
+        nome: this.usuarioLogado.nome,
+        sobrenome: this.usuarioLogado.sobrenome,
+        foto: this.usuarioLogado.foto
+      });
+    }
+  }
+
+  setActiveTab(tab: 'perfil' | 'produtos' | 'vendas'): void {
+    this.activeTab = tab;
+  }
 }
