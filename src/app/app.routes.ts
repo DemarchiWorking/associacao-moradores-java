@@ -12,6 +12,7 @@ import { DetalhesProdutoComponent } from './pages/detalhes-produto/detalhes-prod
 import { EntrarComponent } from './pages/entrar/entrar.component';
 import { PerfilComponent } from './pages/perfil/perfil.component';
 import { EditarProdutoComponent } from './pages/editar-produto/editar-produto.component';
+import { CarrinhoComprasComponent } from './pages/carrinho-compras/carrinho-compras.component';
 export const routes: Routes = [
     {
         path: '',
@@ -24,6 +25,10 @@ export const routes: Routes = [
     {
         path: 'perfil',
         component: PerfilComponent
+    },
+    {
+        path: 'carrinho',
+        component: CarrinhoComprasComponent
     },
     {
         path: 'registrar',
