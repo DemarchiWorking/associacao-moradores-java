@@ -1,10 +1,12 @@
-<section class="bg-white py-8 antialiased dark:bg-gray-900 md:py-16">
+<section class="bg-white antialiased dark:bg-gray-900">
   <div class="mx-auto max-w-screen-xl px-4 2xl:px-0 border-t-0 border-r border-b border-l-0 border-gray-300 shadow-lg rounded-lg">
 
       <div class="mx-auto max-w-6xl pt-4">
         <div class="gap-4 sm:flex sm:items-center sm:justify-between">
           <h2 class="text-xl font-semibold text-gray-900 dark:text-white sm:text-2xl"> Bazar </h2>
+          <!--
           <div class="mt-6 flex items-center space-x-4 sm:mt-0 pb-10">
+
             <div>
               <label for="warranty-status" class="sr-only mb-2 block text-sm font-medium text-gray-900 dark:text-white">Warranty status</label>
               <select id="warranty-status" class="block w-full min-w-[8rem] rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder:text-gray-400 dark:focus:border-primary-500 dark:focus:ring-primary-500">
@@ -25,7 +27,7 @@
                 <option value="60">60 months</option>
               </select>
             </div>
-          </div>
+          </div>-->
         </div>
         <div class="search-container"> 
             <input type="text" id="search-input" name="search-input" class="search-bar" placeholder="Buscar..."  (input)="onSearchs($event)"> 
@@ -41,7 +43,7 @@
             </button>
             <div class="product-list flex overflow-x-auto" #productList>
               <div *ngFor="let categoria of categorias" 
-                   (click)="selectCategory(categoria.id)" 
+                   (click)="selectCategory(categoria)" 
                    [ngClass]="{'selected': categoria.id === selectedCategoryId}"
                    class="product-card flex-shrink-0 p-4 m-2 border border-gray-300 hover:border-blue-500 focus:border-blue-500 hover:bg-blue-50 focus:bg-blue-100 cursor-pointer">
                 <img [src]="categoria.icone" alt="Icon" class="product-icon w-12 h-12 mb-2">
@@ -59,7 +61,7 @@
         
           <!-- Mostrar o ID da categoria selecionada -->
           <div *ngIf="selectedCategoryId !== null" class="mt-4 text-center">
-            <p class="text-lg font-medium">ID da Categoria Selecionada: {{ selectedCategoryId }}</p>
+            <p class="text-lg font-medium">ID da Categoria Selecionada: {{ selectedCategoryId }} | {{ selectedCategoriaNome }}</p>
           </div>
         </section>
         
@@ -168,7 +170,7 @@
   </div>
   <div class="pt-6">
       <a href="#" class="text-lg font-semibold leading-tight text-gray-900 hover:underline dark:text-white"> {{produto.nome}} </a>
-      <div class="text-center">   <h3> {{produto.categoria}}</h3> </div>
+      <div class="text-center">   <h3> {{produto.categoria}} || {{produto.quantidade}} </h3>  </div>
 
       <ul class="mt-2 flex items-center gap-4">
         <div>
@@ -179,7 +181,7 @@
                   <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h6l2 4m-8-4v8m0-8V6a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1v9h2m8 0H9m4 0h2m4 0h2v-4m0 0h-5m3.5 5.5a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0Z" />
               </svg>
               <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Entrega</p>
-              <p class="text-sm font-medium text-gray-500 dark:text-gray-400"> {{</p>
+              <p class="text-sm font-medium text-gray-500 dark:text-gray-400"> </p>
           </li>
           <li class="flex items-center gap-2">
               <svg class="h-4 w-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -568,50 +570,50 @@
         </div>
   
         <nav class="mt-6 flex items-center justify-center sm:mt-8" aria-label="Page navigation example">
-  <ul class="flex h-8 items-center -space-x-px text-sm">
-    <li>
-      <button 
-        (click)="paginaAnterior()" 
-        [disabled]="page === 0"
-        [ngClass]="{'cursor-not-allowed opacity-50': page === 0}"
-        class="ms-0 flex h-8 items-center justify-center rounded-s-lg border border-e-0 border-gray-300 bg-white px-3 leading-tight text-gray-500 hover:bg-gray-100 hover:text-gray-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
-        <span class="sr-only">Previous</span>
-        <svg class="h-4 w-4 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-          <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m15 19-7-7 7-7" />
-        </svg>
-      </button>
-    </li>
+        <ul class="flex h-8 items-center -space-x-px text-sm">
+          <li>
+            <button 
+              (click)="paginaAnterior()" 
+              [disabled]="page === 0"
+              [ngClass]="{'cursor-not-allowed opacity-50': page === 0}"
+              class="ms-0 flex h-8 items-center justify-center rounded-s-lg border border-e-0 border-gray-300 bg-white px-3 leading-tight text-gray-500 hover:bg-gray-100 hover:text-gray-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
+              <span class="sr-only">Previous</span>
+              <svg class="h-4 w-4 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m15 19-7-7 7-7" />
+              </svg>
+            </button>
+          </li>
 
-    <li *ngFor="let p of paginasVisiveis">
-      <ng-container *ngIf="p !== null; else ellipsis">
-        <button 
-          (click)="irParaPagina(p)" 
-          [ngClass]="{
-            'z-10 bg-primary-50 text-primary-600 dark:bg-gray-700 dark:text-white': page === p,
-            'bg-white text-gray-500 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white': page !== p
-          }"
-          class="flex h-8 items-center justify-center border border-gray-300 px-3 leading-tight">
-          {{ p + 1 }}
-        </button>
-      </ng-container>
-      <ng-template #ellipsis>
-        <span class="flex h-8 items-center justify-center border border-gray-300 bg-white px-3 leading-tight text-gray-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400">...</span>
-      </ng-template>
-    </li>
+          <li *ngFor="let p of paginasVisiveis">
+            <ng-container *ngIf="p !== null; else ellipsis">
+              <button 
+                (click)="irParaPagina(p)" 
+                [ngClass]="{
+                  'z-10 bg-primary-50 text-primary-600 dark:bg-gray-700 dark:text-white': page === p,
+                  'bg-white text-gray-500 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white': page !== p
+                }"
+                class="flex h-8 items-center justify-center border border-gray-300 px-3 leading-tight">
+                {{ p + 1 }}
+              </button>
+            </ng-container>
+            <ng-template #ellipsis>
+              <span class="flex h-8 items-center justify-center border border-gray-300 bg-white px-3 leading-tight text-gray-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400">...</span>
+            </ng-template>
+          </li>
 
-    <li>
-      <button 
-        (click)="proximaPagina()" 
-        [disabled]="page === totalPaginas - 1"
-        [ngClass]="{'cursor-not-allowed opacity-50': page === totalPaginas - 1}"
-        class="flex h-8 items-center justify-center rounded-e-lg border border-gray-300 bg-white px-3 leading-tight text-gray-500 hover:bg-gray-100 hover:text-gray-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
-        <span class="sr-only">Next</span>
-        <svg class="h-4 w-4 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-          <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m9 5 7 7-7 7" />
-        </svg>
-      </button>
-    </li>
-  </ul>
+          <li>
+            <button 
+              (click)="proximaPagina()" 
+              [disabled]="page === totalPaginas - 1"
+              [ngClass]="{'cursor-not-allowed opacity-50': page === totalPaginas - 1}"
+              class="flex h-8 items-center justify-center rounded-e-lg border border-gray-300 bg-white px-3 leading-tight text-gray-500 hover:bg-gray-100 hover:text-gray-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
+              <span class="sr-only">Next</span>
+              <svg class="h-4 w-4 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m9 5 7 7-7 7" />
+              </svg>
+            </button>
+          </li>
+        </ul>
 </nav>
             <div class="relative w-full overflow-hidden py-4">
         <div class="flex items-center">

@@ -2,6 +2,10 @@ import { NgFor } from '@angular/common';
 import { Component, ElementRef, ViewChild } from '@angular/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faArrowLeft, faArrowRight, faSearch } from '@fortawesome/free-solid-svg-icons';
+import { AuthService } from '../../services/autenticacao/auth.service';
+import { Router } from '@angular/router';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
+import { Page } from '../bazar/bazar.component';
 
 @Component({
   selector: 'app-contato',
@@ -14,10 +18,25 @@ export class ContatoComponent {
   @ViewChild('productList') productList: ElementRef | undefined;
   query: string = '';
   results: string[] = [];
+  private apiUrl = 'http://localhost:8081/api';
+  constructor(
+    private authService: AuthService, 
+    private router: Router,
+    private http: HttpClient,
+    
+  ) {
+    this.carregarPerfis()
+  }
+  page = 0;
+  size = 12;
+  totalElementos = 0;
+  totalPaginas = 0;
   faSearch = faSearch;
   faArrowLeft = faArrowLeft;
   faArrowRight = faArrowRight;
   items = ['Item 1', 'Item 2', 'Item 3', 'Item 4', 'Item 5'];
+  perfis: any[] = [];
+  
   categorias: any = [
     { id: 0, nome: 'Todos' , icone: '../../../assets/icones/icone-todos.png'},
     { id: 1, nome: 'Roupa', icone: '../../../assets/icones/icone-camiseta.png' },//  croche 
@@ -50,6 +69,40 @@ export class ContatoComponent {
   selectCategory(id: number) {
     this.selectedCategoryId = id;
   }
+
+    carregarPerfis(): void {
+      const token = this.authService.getTokenLocalStorage();
+      if (!token) {
+        console.error('Nenhum token de autenticação encontrado. O usuário precisa fazer login.');
+        this.router.navigate(['/login']);
+        return;
+      }
+  
+      const headers = new HttpHeaders({
+        'Authorization': `Bearer ${token}`
+      });
+  
+      let params = new HttpParams()
+        .set('page', this.page.toString())
+        .set('size', this.size.toString());
+  
+      this.http.get<Page<any>>(`${this.apiUrl}/usuarios/perfis`, { headers: headers, params: params })
+        .subscribe({
+          next: (data) => {
+            this.perfis = data.content;
+            console.log('Produtos recebidos:', data.content); // Log para depuração
+            this.totalElementos = data.totalElements;
+            this.totalPaginas = data.totalPages;
+  
+            //this.gerarPaginasVisiveis();
+          },
+          error: (error) => {
+            console.error('Erro ao carregar produtos:', error);
+          }
+        });
+    }
+  
+
   getFilteredProducts():any[] {
     if (this.selectedCategoryId === 0 || this.selectedCategoryId === null) {
       return this.produtos;

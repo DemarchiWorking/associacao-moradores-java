@@ -1,6 +1,5 @@
 import { Routes } from '@angular/router';
 import { LoginComponent } from './pages/login/login.component';
-import { RegisterComponent } from './pages/register/register.component';
 import { InicialComponent } from './pages/inicial/inicial.component';
 import { BazarComponent } from './pages/bazar/bazar.component';
 import { IndexComponent } from './pages/index/index.component';
@@ -13,6 +12,8 @@ import { EntrarComponent } from './pages/entrar/entrar.component';
 import { PerfilComponent } from './pages/perfil/perfil.component';
 import { EditarProdutoComponent } from './pages/editar-produto/editar-produto.component';
 import { CarrinhoComprasComponent } from './pages/carrinho-compras/carrinho-compras.component';
+import { PedidosComponent } from './pages/pedidos/pedidos.component';
+import { RegistrarComponent } from './pages/registrar/registrar.component';
 export const routes: Routes = [
     {
         path: '',
@@ -31,8 +32,12 @@ export const routes: Routes = [
         component: CarrinhoComprasComponent
     },
     {
+        path: 'pedidos',
+        component: PedidosComponent
+    },
+    {
         path: 'registrar',
-        component: RegisterComponent
+        component: RegistrarComponent
     },       
     {
         path: 'editar-produto/:id',

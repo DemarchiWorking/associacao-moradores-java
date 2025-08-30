@@ -3,6 +3,8 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, AbstractControl } from '@angular/forms';
 import { AuthService } from '../../services/autenticacao/auth.service';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { faCircleMinus, faCirclePlus } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
   selector: 'app-cadastrar-produto',
@@ -10,7 +12,8 @@ import { AuthService } from '../../services/autenticacao/auth.service';
   imports: [
     ReactiveFormsModule,
     NgIf,
-    NgFor
+    NgFor,
+    FontAwesomeModule,  // <--- Adicione aqui
   ],
   templateUrl: './cadastrar-produto.component.html',
   styleUrl: './cadastrar-produto.component.scss'
@@ -19,7 +22,8 @@ export class CadastrarProdutoComponent implements OnInit {
 
   produtoForm!: FormGroup;
   categoriaForm!: FormGroup;
-
+  faCircleMinus = faCircleMinus;
+  faCirclePlus = faCirclePlus;
   private readonly API_CATEGORIAS = 'http://localhost:8081/api/categorias';
   private readonly API_PRODUTOS = 'http://localhost:8081/api/produtos';
   message: string | null = null;
@@ -34,6 +38,7 @@ export class CadastrarProdutoComponent implements OnInit {
       nome: ['', Validators.required],
       categoria: ['', Validators.required],
       categoriaId: [''], // Adicione este campo para armazenar o ID da categoria
+      quantidade: [1, [Validators.required, Validators.min(1)]],
       preco: [null, [Validators.required, Validators.min(0.01)]],
       imagem: ['', Validators.required],
     });
@@ -114,20 +119,23 @@ export class CadastrarProdutoComponent implements OnInit {
       }
     }
   }
-  buscarTodasCategorias() {
-    const token = this.authService.getTokenLocalStorage();
+ buscarTodasCategorias() {
+  const token = this.authService.getTokenLocalStorage();
+  
+  if (token) {
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`
+    });
     
-    if (token) {
-      const headers = new HttpHeaders({
-        'Authorization': `Bearer ${token}`
-      });
-      
-
     this.http.get<any[]>(this.API_CATEGORIAS, { headers: headers })
       .subscribe({
         next: (categorias) => {
-          console.log('Todas as Categorias:', categorias);
-          this.listaDeCategorias = categorias;
+          console.log('Todas as Categorias (antes do filtro):', categorias);
+          
+          // Adicione esta linha para filtrar a categoria "Todos"
+          this.listaDeCategorias = categorias.filter(cat => cat.nome !== 'Todos');
+          
+          console.log('Categorias (após o filtro):', this.listaDeCategorias);
         },
         error: (error) => {
           console.error('Erro ao buscar categorias:', error);
@@ -135,11 +143,10 @@ export class CadastrarProdutoComponent implements OnInit {
           this.message = 'Erro ao carregar categorias.';
         }
       });
-    } else {
-      console.error('Nenhum token de autenticação encontrado. O usuário precisa fazer login.');
-    }
+  } else {
+    console.error('Nenhum token de autenticação encontrado. O usuário precisa fazer login.');
   }
-
+}
   cadastrarProduto() {
     this.message = null;
     this.isError = false;
@@ -181,6 +188,27 @@ export class CadastrarProdutoComponent implements OnInit {
       this.isError = true;
       this.message = 'Por favor, preencha todos os campos do produto corretamente.';
       this.produtoForm.markAllAsTouched();
+      }
+    }
+  }
+  aumentarQuantidade(): void {
+  const quantidadeControl = this.produtoForm.get('quantidade');
+  if (quantidadeControl) {
+    let valorAtual = Number(quantidadeControl.value);
+    if(quantidadeControl.value < 10){
+    quantidadeControl.setValue(valorAtual + 1);
+    }
+  }
+}
+
+// Método para diminuir a quantidade
+diminuirQuantidade(): void {
+  const quantidadeControl = this.produtoForm.get('quantidade');
+  if (quantidadeControl) {
+    let valorAtual = Number(quantidadeControl.value);
+    // Só diminui se o valor for maior que 1 (respeitando sua validação min(1))
+    if (valorAtual > 1) {
+      quantidadeControl.setValue(valorAtual - 1);
       }
     }
   }

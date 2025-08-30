@@ -50,7 +50,7 @@ export class EntrarComponent implements OnInit {
         .subscribe({
           next: (response) => {
             console.log('Login bem-sucedido!', response);
-           this.authService.saveTokenLocalStorage(response.token);
+            this.authService.saveTokenLocalStorage(response.token);
             this.router.navigate(['/bazar']);
           },
           error: (error) => {

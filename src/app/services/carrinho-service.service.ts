@@ -36,7 +36,7 @@ export class CarrinhoServiceService {
     if (itemExistente) {
       itemExistente.quantidade += 1;
     } else {
-      produto.id = this.gerarIdUnico();
+      produto.id = produto.id || null;
       carrinhoAtual.push({ ...produto, quantidade: 1 });
     }
     this.salvarCarrinho();
@@ -48,7 +48,11 @@ export class CarrinhoServiceService {
     this.carrinhoSubject.next(carrinhoFiltrado);
     this.salvarCarrinho();
   }
+  limparCarrinho(): void { 
+    localStorage.setItem('carrinho', JSON.stringify([]));
 
+    console.log('Carrinho limpo.');
+  }
   atualizarQuantidade(produtoId: number, quantidade: number): void {
     const carrinhoAtual = this.carrinhoSubject.value;
     const itemExistente = carrinhoAtual.find(item => item.id === produtoId);

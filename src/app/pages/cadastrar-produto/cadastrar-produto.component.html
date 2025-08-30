@@ -1,141 +1,199 @@
-<div class="pl-20 pr-20">
-  <div class="form-container">
-    <div class="p-5">
-        <h2 style="font-weight: 700;">Cadastrar Produto</h2>
-    </div>   
-    <form [formGroup]="produtoForm" (ngSubmit)="onSubmitProduto()">
-      <div class="form-group pl-20 pr-20">
-        <label for="produtoNome">Nome</label>
-        <input id="produtoNome" style="padding: 20px" type="text" formControlName="nome" placeholder="Nome" />
-        <div *ngIf="produtoNomeControl?.invalid && (produtoNomeControl?.dirty || produtoNomeControl?.touched)" class="error-message">
-          <div *ngIf="produtoNomeControl?.errors?.['required']">Nome do produto é obrigatório.</div>
+<div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-5">
+   
+    <!-- Formulário de Produto -->
+    <div class="form-container">
+        <div class="p-5">
+            <h2 class="text-2xl font-bold">Cadastrar Produto</h2>
         </div>
-      </div>
+        <form [formGroup]="produtoForm" (ngSubmit)="onSubmitProduto()">
+            <div class="form-group">
+                <label for="produtoNome">Nome</label>
+                <input id="produtoNome" type="text" formControlName="nome" placeholder="Nome" class="input-grosso" />
+                <div *ngIf="produtoNomeControl?.invalid && (produtoNomeControl?.dirty || produtoNomeControl?.touched)" class="error-message">
+                    <div *ngIf="produtoNomeControl?.errors?.['required']">Nome do produto é obrigatório.</div>
+                </div>
+            </div>
 
-      <div class="form-group pl-20 pr-20">
-        <label for="produtoCategoria">Categoria</label>
-        
-        <select id="produtoCategoria" class="p-5" formControlName="categoria">
-          <option value="" disabled>Selecione uma categoria</option>
-          <option *ngFor="let cat of listaDeCategorias" [ngValue]="cat">{{ cat.nome }}</option>
-        </select>
-        <div *ngIf="produtoCategoriaControl?.invalid && (produtoCategoriaControl?.dirty || produtoCategoriaControl?.touched)" class="error-message">
-          <div *ngIf="produtoCategoriaControl?.errors?.['required']">Categoria é obrigatória.</div>
-        </div>
-      </div>
+            <div class="form-group">
+                <label for="produtoCategoria">Categoria</label>
+                <div class="flex flex-wrap md:flex-nowrap gap-4 items-center">
+                    <select id="produtoCategoria" formControlName="categoria" class="input-grosso flex-grow w-full md:w-auto">
+                        <option value="" disabled>Selecione uma categoria</option>
+                        <option *ngFor="let cat of listaDeCategorias" [ngValue]="cat">{{ cat.nome }}</option>
+                    </select>              
+                  <input id="quantidade" readonly  type="text" formControlName="quantidade" class="input-grosso" />
 
-      <div class="form-group pl-20 pr-20">
-        <label for="produtoPreco">Preço</label>
-        <input id="produtoPreco" style="padding: 20px;" type="number"  style="padding: 20px"  formControlName="preco" placeholder="Preço" />
-        <div *ngIf="produtoPrecoControl?.invalid && (produtoPrecoControl?.dirty || produtoPrecoControl?.touched)" class="error-message">
-          <div *ngIf="produtoPrecoControl?.errors?.['required']">Preço é obrigatório.</div>
-          <div *ngIf="produtoPrecoControl?.errors?.['min']">Preço deve ser maior que zero.</div>
-        </div>
-      </div>
-      
-      <div class="form-group pl-20 pr-20" >
-        <label for="produtoImagem">URL da Imagem</label>
-        <input id="produtoImagem" type="text" style="padding: 20px" formControlName="imagem" placeholder="https://exemplo.com/imagem.jpg" />
-        <div *ngIf="produtoImagemControl?.invalid && (produtoImagemControl?.dirty || produtoImagemControl?.touched)" class="error-message">
-          <div *ngIf="produtoImagemControl?.errors?.['required']">A URL da imagem é obrigatória.</div>
-        </div>
-      </div>
-      <div class="pl-20 pr-20">
-        <button type="submit" style="padding:20px" [disabled]="!produtoForm.valid">Salvar Modificações do Produto</button>
-      </div>  
-    </form>
-  </div>
-</div><br>
+                    <div class="w-68 hidden">
+                        <input id="produtoImagem" type="text" formControlName="imagem" value="1" class="input-grosso"/>
+                    </div>
+                    <button (click)="aumentarQuantidade()"  data-modal-target="default-modal" data-modal-toggle="default-modal" class="btn-icon" type="button">
+                        <fa-icon size="2x" [icon]="faCirclePlus"></fa-icon>
+                    </button>
+                    <button (click)="diminuirQuantidade()" data-modal-target="default-modal" data-modal-toggle="default-modal" class="btn-icon" type="button">
+                        <fa-icon size="2x" [icon]="faCircleMinus"></fa-icon>
+                    </button>
+                </div>
+                <div *ngIf="produtoCategoriaControl?.invalid && (produtoCategoriaControl?.dirty || produtoCategoriaControl?.touched)" class="error-message">
+                    <div *ngIf="produtoCategoriaControl?.errors?.['required']">Categoria é obrigatória.</div>
+                </div>
+            </div>
 
-<hr>
-
-<div class="pl-20 pr-20 pt-5">
-  <div class="form-container">
-    <div class="p-5">
-        <h2 style="font-weight: 700;">Editar informações de Categoria</h2>
+            <div class="form-group">
+                <label for="produtoPreco">Preço</label>
+                <input id="produtoPreco" type="number" formControlName="preco" placeholder="Preço" class="input-grosso" />
+                <div *ngIf="produtoPrecoControl?.invalid && (produtoPrecoControl?.dirty || produtoPrecoControl?.touched)" class="error-message">
+                    <div *ngIf="produtoPrecoControl?.errors?.['required']">Preço é obrigatório.</div>
+                    <div *ngIf="produtoPrecoControl?.errors?.['min']">Preço deve ser maior que zero.</div>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="produtoImagemUrl">URL da Imagem</label>
+                <input id="produtoImagemUrl" type="text" formControlName="imagem" placeholder="https://exemplo.com/imagem.jpg" class="input-grosso" />
+                <div *ngIf="produtoImagemControl?.invalid && (produtoImagemControl?.dirty || produtoImagemControl?.touched)" class="error-message">
+                    <div *ngIf="produtoImagemControl?.errors?.['required']">A URL da imagem é obrigatória.</div>
+                </div>
+            </div>
+            <div>
+                <button type="submit" [disabled]="!produtoForm.valid" class="w-full input-grosso">Salvar Modificações do Produto</button>
+            </div>
+        </form>
     </div>
-    <form [formGroup]="categoriaForm" (ngSubmit)="onSubmitCategoria()">
-      <div class="form-group pl-20 pr-20">
-        <label for="categoriaNome">Nome</label>
-        <input id="categoriaNome" style="padding: 20px;" type="text" formControlName="nome" placeholder="Nome" />
-        <div *ngIf="categoriaNomeControl?.invalid && (categoriaNomeControl?.dirty || categoriaNomeControl?.touched)" class="error-message">
-          <div *ngIf="categoriaNomeControl?.errors?.['required']">Nome da categoria é obrigatório.</div>
-        </div>
-      </div>
 
-      <div class="form-group pl-20 pr-20">
-        <label for="categoriaFoto">URL da Foto</label>
-        <input id="categoriaFoto" style="padding: 20px;" type="text" formControlName="icone" placeholder="URL da Foto" />
-        <div *ngIf="categoriaIconeControl?.invalid && (categoriaIconeControl?.dirty || categoriaIconeControl?.touched)" class="error-message">
-          <div *ngIf="categoriaIconeControl?.errors?.['required']">URL da foto é obrigatória.</div>
+    <hr class="my-8">
+
+    <!-- Formulário de Categoria -->
+    <div class="form-container">
+        <div class="p-5">
+            <h2 class="text-2xl font-bold">Editar informações de Categoria</h2>
         </div>
-      </div>
-      <div class="pl-20 pr-20">
-        <button type="submit" style="padding:20px" [disabled]="!categoriaForm.valid">Salvar Modificações da Categoria</button>
-      </div>
-    </form>
-  </div>
+        <form [formGroup]="categoriaForm" (ngSubmit)="onSubmitCategoria()">
+            <div class="form-group">
+                <label for="categoriaNome">Nome</label>
+                <input id="categoriaNome" type="text" formControlName="nome" placeholder="Nome" class="input-grosso" />
+                <div *ngIf="categoriaNomeControl?.invalid && (categoriaNomeControl?.dirty || categoriaNomeControl?.touched)" class="error-message">
+                    <div *ngIf="categoriaNomeControl?.errors?.['required']">Nome da categoria é obrigatório.</div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="categoriaFoto">URL da Foto</label>
+                <input id="categoriaFoto" type="text" formControlName="icone" placeholder="URL da Foto" class="input-grosso" />
+                <div *ngIf="categoriaIconeControl?.invalid && (categoriaIconeControl?.dirty || categoriaIconeControl?.touched)" class="error-message">
+                    <div *ngIf="categoriaIconeControl?.errors?.['required']">URL da foto é obrigatória.</div>
+                </div>
+            </div>
+            <div>
+                <button type="submit" [disabled]="!categoriaForm.valid" class="w-full input-grosso">Salvar Modificações da Categoria</button>
+            </div>
+        </form>
+    </div>
 </div>
 
+<!-- Mensagem de feedback -->
 <div *ngIf="message" [class.success]="!isError" [class.error]="isError" class="message-box">
-  {{ message }}
+    {{ message }}
 </div>
 
 <style>
-  .error-message {
-    color: red;
-    font-size: 0.8em;
-    margin-top: 5px;
-  }
-  .message-box {
-    margin-top: 20px;
-    padding: 10px;
-    border-radius: 5px;
-  }
-  .success {
-    background-color: #d4edda;
-    color: #155724;
-    border: 1px solid #c3e6cb;
-  }
-  .error {
-    background-color: #f8d7da;
-    color: #721c24;
-    border: 1px solid #f5c6cb;
-  }
+    /* =========================================
+       ESTILOS MODERNOS E RESPONSIVOS PARA FORMS
+       ========================================= */
+    .input-grosso {
+        padding: 20px;
+        width: 100%;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        box-sizing: border-box;
+        background-color: #fff;
+        transition: border-color 0.3s, box-shadow 0.3s;
+    }
 
-  /* Estilos básicos para os formulários */
-  .form-container {
-    padding: 20px;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    background-color: #f9f9f9;
-  }
-  .form-group {
-    margin-bottom: 15px;
-  }
-  .form-group label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: bold;
-  }
-  .form-group input {
-    width: 100%;
-    padding: 8px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    box-sizing: border-box;
-  }
-  button[type="submit"] {
-    padding: 10px 15px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 16px;
-  }
-  button[type="submit"]:disabled {
-    background-color: #cccccc;
-    cursor: not-allowed;
-  }
+    .input-grosso:focus {
+        outline: none;
+        border-color: #007bff;
+        box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+    }
+
+    .btn-icon {
+        padding: 20px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+    .btn-icon:hover {
+        background-color: #0056b3;
+    }
+
+    /* =========================================
+       ESTILOS BÁSICOS (MANTIDOS E OTIMIZADOS)
+       ========================================= */
+
+    .form-container {
+        padding: 20px;
+        border: 1px solid #ccc;
+        border-radius: 12px;
+        background-color: #f9f9f9;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        color: #333;
+    }
+
+    button[type="submit"].input-grosso {
+        background-color: #007bff;
+        color: white;
+        font-size: 16px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+    button[type="submit"].input-grosso:disabled {
+        background-color: #cccccc;
+        cursor: not-allowed;
+        border-color: #ddd;
+    }
+
+    .error-message {
+        color: #dc3545;
+        font-size: 0.875em;
+        margin-top: 5px;
+    }
+
+    .message-box {
+        position: fixed; /* Para ficar visível sobre o conteúdo */
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        padding: 15px;
+        border-radius: 8px;
+        text-align: center;
+        z-index: 100; /* Para garantir que fique na frente */
+        min-width: 300px;
+    }
+
+    .success {
+        background-color: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+    }
+
+    .error {
+        background-color: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+    }
 </style>

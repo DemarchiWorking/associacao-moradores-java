@@ -28,6 +28,7 @@ export interface Page<T> {
 }
 
 export interface Categoria {
+  id: string;
   nome: string;
 }
 
@@ -61,6 +62,7 @@ export class BazarComponent implements OnInit {
   private apiUrl = 'http://localhost:8081/api';
   produtos: any[] = [];
   selectedCategoryId: String | null = null;
+  selectedCategoriaNome: String | null = null;
   carrinho: any[] = [];
   categorias: any = [];
   items = ['Item 1', 'Item 2', 'Item 3', 'Item 4', 'Item 5'];
@@ -69,38 +71,8 @@ export class BazarComponent implements OnInit {
   // Mantive a lista de categorias e itens do seu código original para garantir que tudo seja preservado.
   @ViewChild('search-input', { static: false }) searchInput!: ElementRef;
   searchText: string = '';
-  categoriasStatic: any = [
-    { id: 0, nome: 'Todos' , icone: '../../../assets/icones/icone-todos.png'},
-    { id: 1, nome: 'Roupa', icone: '../../../assets/icones/icone-camiseta.png' },//  croche 
-    { id: 2, nome: 'Brinquedo', icone: '../../../assets/icones/icone-brinquedo.png' },
-    { id: 3, nome: 'Decoração', icone: '../../../assets/icones/icone-decoracao.png'},
-    { id: 4, nome: 'Artesanato', icone: '../../../assets/icones/icone-artesanato.png' },
-    { id: 5, nome: 'Quadro', icone: '../../../assets/icones/icone-quadro.png' },
-    { id: 6, nome: 'Croche', icone: '../../../assets/icones/icone-croche.png' },
-  ];
-   itens: Item[] = [
-    { label: 'Landscape', imagem: 'https://estilopropriobysir.com/wp-content/uploads/e3258c03ac14a7d57a31fd28d22b8100.jpg' },
-    { label: 'Cali', imagem: 'https://estilopropriobysir.com/wp-content/uploads/e3258c03ac14a7d57a31fd28d22b8100.jpg' },
-    { label: 'City', imagem: 'https://estilopropriobysir.com/wp-content/uploads/e3258c03ac14a7d57a31fd28d22b8100.jpg' },
-    { label: 'Plants', imagem: 'https://estilopropriobysir.com/wp-content/uploads/e3258c03ac14a7d57a31fd28d22b8100.jpg' },
-    { label: 'Portraits', imagem: 'https://estilopropriobysir.com/wp-content/uploads/e3258c03ac14a7d57a31fd28d22b8100.jpg' },
-    { label: 'NYC', imagem: 'https://estilopropriobysir.com/wp-content/uploads/e3258c03ac14a7d57a31fd28d22b8100.jpg' },
-    { label: 'Chicago', imagem: 'https://estilopropriobysir.com/wp-content/uploads/e3258c03ac14a7d57a31fd28d22b8100.jpg' },
-    { label: 'Nature', imagem: 'https://estilopropriobysir.com/wp-content/uploads/e3258c03ac14a7d57a31fd28d22b8100.jpg' },
-    { label: 'Travel', imagem: 'https://estilopropriobysir.com/wp-content/uploads/e3258c03ac14a7d57a31fd28d22b8100.jpg' },
-    { label: 'City', imagem: 'https://estilopropriobysir.com/wp-content/uploads/e3258c03ac14a7d57a31fd28d22b8100.jpg' },
-    { label: 'Plants', imagem: 'https://estilopropriobysir.com/wp-content/uploads/e3258c03ac14a7d57a31fd28d22b8100.jpg' },
-    { label: 'Portraits', imagem: 'https://estilopropriobysir.com/wp-content/uploads/e3258c03ac14a7d57a31fd28d22b8100.jpg' },
-    { label: 'NYC', imagem: 'https://estilopropriobysir.com/wp-content/uploads/e3258c03ac14a7d57a31fd28d22b8100.jpg' },
-    { label: 'Chicago', imagem: 'https://estilopropriobysir.com/wp-content/uploads/e3258c03ac14a7d57a31fd28d22b8100.jpg' },
-    { label: 'Nature', imagem: 'https://estilopropriobysir.com/wp-content/uploads/e3258c03ac14a7d57a31fd28d22b8100.jpg' },
-    { label: 'Plants', imagem: 'https://estilopropriobysir.com/wp-content/uploads/e3258c03ac14a7d57a31fd28d22b8100.jpg' },
-    { label: 'Portraits', imagem: 'https://estilopropriobysir.com/wp-content/uploads/e3258c03ac14a7d57a31fd28d22b8100.jpg' },
-    { label: 'NYC', imagem: 'https://estilopropriobysir.com/wp-content/uploads/e3258c03ac14a7d57a31fd28d22b8100.jpg' },
-    { label: 'Chicago', imagem: 'https://estilopropriobysir.com/wp-content/uploads/e3258c03ac14a7d57a31fd28d22b8100.jpg' },
-    { label: 'Nature', imagem: 'https://estilopropriobysir.com/wp-content/uploads/e3258c03ac14a7d57a31fd28d22b8100.jpg' },
-    { label: 'Travel', imagem: 'https://estilopropriobysir.com/wp-content/uploads/e3258c03ac14a7d57a31fd28d22b8100.jpg' }
-  ];
+  categoriasStatic: any =[];
+  itens: Item[] = [];
 
 
   
@@ -124,8 +96,6 @@ export class BazarComponent implements OnInit {
      });
   }
 
-  // --- Lógica de Paginação Corrigida e Completa ---
-
   carregarProdutos(): void {
     const token = this.authService.getTokenLocalStorage();
     if (!token) {
@@ -146,9 +116,10 @@ export class BazarComponent implements OnInit {
       .subscribe({
         next: (data) => {
           this.produtos = data.content;
+          console.log('Produtos recebidos:', data.content); // Log para depuração
           this.totalElementos = data.totalElements;
           this.totalPaginas = data.totalPages;
-          // Chama o método para gerar a lista de páginas
+
           this.gerarPaginasVisiveis();
         },
         error: (error) => {
@@ -218,7 +189,6 @@ export class BazarComponent implements OnInit {
     }
   }
 
-  // --- Outros Métodos Mantidos ---
 
   getCategoriasDosProdutos(): Observable<Categoria[]> {
     const token = this.authService.getTokenLocalStorage();
@@ -235,56 +205,77 @@ export class BazarComponent implements OnInit {
     }
   }
   
- selectCategory(id: string) {
-    this.selectedCategoryId = id;
-    const inputElement = document.getElementById('search-input') as HTMLInputElement;
-    if (inputElement) {
 
-      console.log(`Categoria selecionada: ${id}`);
-      inputElement.value = '';
-    }
-    this.searchText = '';
-    this.carregarProdutosFiltroCategorias(id);
+
+selectCategory(categoria: Categoria): void {
+  this.selectedCategoryId = categoria.id.toString();
+  this.selectedCategoriaNome = categoria.nome;
+  this.page = 0; // Resetar a página para 0 ao selecionar uma nova categoria
+  const inputElement = document.getElementById('search-input') as HTMLInputElement;
+  if (inputElement) {
+    console.log(`Categoria selecionada: ${this.selectedCategoryId} || ${this.selectedCategoriaNome} `);
+    inputElement.value = '';
+  }
+  this.searchText = '';
+  if(categoria.nome === 'Todos'){
+  this.selectedCategoryId = '0';
+  this.selectedCategoriaNome = '';
+
+    this.carregarProdutos();
+  }
+  else if(categoria.id === '0') {
+    this.carregarProdutos();
+   } else {
+    this.carregarProdutosFiltroCategorias(categoria.id);
+  }
+}
+
+// Método carregarProdutosFiltroCategorias
+carregarProdutosFiltroCategorias(id: string): void {
+  const token = this.authService.getTokenLocalStorage();
+  if (!token) {
+    console.error('Nenhum token de autenticação encontrado. O usuário precisa fazer login.');
+    this.router.navigate(['/login']);
+    return;
   }
 
-  carregarProdutosFiltroCategorias(id: string): void {
-    const token = this.authService.getTokenLocalStorage();
-    if (!token) {
-      console.error('Nenhum token de autenticação encontrado. O usuário precisa fazer login.');
-      this.router.navigate(['/login']);
-      return;
-    }
+  const headers = new HttpHeaders({
+    'Authorization': `Bearer ${token}`
+  });
 
-    const headers = new HttpHeaders({
-      'Authorization': `Bearer ${token}`
+  let params = new HttpParams()
+    .set('page', this.page.toString())
+    .set('size', this.size.toString())
+    .set('categoriaId', id);
+
+  this.http.get<Page<any>>(`${this.apiUrl}/produtos/filtro`, { headers: headers, params: params })
+    .subscribe({
+      next: (data) => {
+        console.log('Produtos recebidos:', data.content); // Log para depuração
+        this.produtos = data.content || []; // Garantir que produtos seja um array
+        this.totalElementos = data.totalElements;
+        this.totalPaginas = data.totalPages;
+        this.gerarPaginasVisiveis();
+      },
+      error: (error) => {
+        console.error('Erro ao carregar produtos:', error);
+        this.produtos = []; // Limpar produtos em caso de erro
+        this.totalElementos = 0;
+        this.totalPaginas = 0;
+        this.gerarPaginasVisiveis();
+      }
     });
+}
 
-    let params = new HttpParams()
-      .set('page', this.page.toString())
-      .set('size', this.size.toString())
-      .set('categoriaId', id); // A CORREÇÃO ESTÁ AQUI: Enviando o ID como um parâmetro de requisição
-
-    // A CORREÇÃO DA URL ESTÁ AQUI: Removendo o ID da URL e usando apenas o caminho base
-    this.http.get<any>(`${this.apiUrl}/produtos/filtro`, { headers: headers, params: params })
-      .subscribe({
-        next: (data) => {
-          this.produtos = data.content;
-          this.totalElementos = data.totalElements;
-          this.totalPaginas = data.totalPages;
-          this.gerarPaginasVisiveis();
-        },
-        error: (error) => {
-          console.error('Erro ao carregar produtos:', error);
-        }
-      });
-  }
-  getFilteredProducts(): any[] {
-    return this.produtos.filter(product => {
-      const matchesCategory = this.selectedCategoryId === null || this.selectedCategoryId === null || product.categoria === this.selectedCategoryId;
-      const matchesSearchText = this.searchText === '' || product.nome.toLowerCase().includes(this.searchText);
-      return matchesCategory && matchesSearchText;
-    });
-  }
+// Método getFilteredProducts
+getFilteredProducts(): any[] {
+  return this.produtos.filter(product => {
+    // Tratar a categoria "Todos" (id === '0') e alinhar com a propriedade categoriaId
+    const matchesCategory = this.selectedCategoryId === '0' || !this.selectedCategoryId || product.categoriaId === this.selectedCategoryId;
+    const matchesSearchText = this.searchText === '' || product.nome.toLowerCase().includes(this.searchText.toLowerCase());
+    return matchesCategory && matchesSearchText;
+  });
+}
   
   onSearch(): void {
     const query = this.query.toLowerCase();
@@ -319,6 +310,7 @@ export class BazarComponent implements OnInit {
   }
 
   adicionarAoCarrinho(produto: any): void {
+    console.log(produto)
     this.carrinhoService.adicionarAoCarrinho(produto);
     this.carrinho = this.carrinhoService.obterCarrinho();
   }
