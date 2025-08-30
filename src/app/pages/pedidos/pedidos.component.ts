@@ -64,7 +64,7 @@ export class PedidosComponent implements OnInit {
     initialValue: [] as ItemPedido[],
   });
 
- page = signal(0);
+  page = signal(0);
   size = signal(12);
   totalElementos = signal(0);
   totalPaginas = signal(0);
