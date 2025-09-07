@@ -14,6 +14,13 @@ import { EditarProdutoComponent } from './pages/editar-produto/editar-produto.co
 import { CarrinhoComprasComponent } from './pages/carrinho-compras/carrinho-compras.component';
 import { PedidosComponent } from './pages/pedidos/pedidos.component';
 import { RegistrarComponent } from './pages/registrar/registrar.component';
+import { LojaComponent } from './pages/loja/loja.component';
+import { PerfilUsuarioComponent } from './pages/perfil-usuario/perfil-usuario.component';
+import { PainelComponent } from './pages/painel/painel.component';
+
+import { authGuard } from './guard/auth.guard';
+
+
 export const routes: Routes = [
     {
         path: '',
@@ -22,30 +29,50 @@ export const routes: Routes = [
     {
         path: 'entrar',
         component: EntrarComponent
+    },    
+    {
+        path: 'painel',
+        component: PainelComponent,
+        canActivate: [authGuard],
     },
     {
         path: 'perfil',
-        component: PerfilComponent
+        component: PerfilComponent,
+        canActivate: [authGuard]
+    },
+    {
+        path: 'perfil-usuario',
+        component: PerfilUsuarioComponent,
+        canActivate: [authGuard]
     },
     {
         path: 'carrinho',
-        component: CarrinhoComprasComponent
+        component: CarrinhoComprasComponent,
+        canActivate: [authGuard]
     },
     {
         path: 'pedidos',
-        component: PedidosComponent
+        component: PedidosComponent,
+        canActivate: [authGuard]
     },
     {
         path: 'registrar',
         component: RegistrarComponent
+    },
+    {
+        path: 'loja',
+        component: LojaComponent,
+        canActivate: [authGuard]
     },       
     {
         path: 'editar-produto/:id',
-        component: EditarProdutoComponent
+        component: EditarProdutoComponent,
+        canActivate: [authGuard]
     },   
     {
         path: 'cadastrar-produto',
-        component: CadastrarProdutoComponent
+        component: CadastrarProdutoComponent,
+        canActivate: [authGuard]
     },
     {
         path: 'detalhes-produto/:id', 
@@ -53,7 +80,7 @@ export const routes: Routes = [
     },
     {
         path: 'quem-somos',
-        component: QuemSomosComponent
+        component: QuemSomosComponent,
     },
     {
         path: 'demandas',
@@ -73,6 +100,7 @@ export const routes: Routes = [
     },
     {
         path: 'contato',
-        component: ContatoComponent
+        component: ContatoComponent,
+        canActivate: [authGuard]
     }
 ];

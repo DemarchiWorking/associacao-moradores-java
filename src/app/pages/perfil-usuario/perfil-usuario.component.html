@@ -78,14 +78,10 @@
       <div *ngIf="activeTab === 'perfil'" class="bg-white p-6 rounded-lg shadow-md">
         <div class="flex justify-between items-center mb-4">
           <h2 class="text-xl font-semibold text-gray-800">Detalhes</h2>
-          <button *ngIf="!editandoPerfil"
-                  (click)="habilitarEdicao()"
-                  class="text-blue-500 hover:text-blue-600 font-semibold">
-            Editar
-          </button>
+
         </div>
           
-  <form *ngIf="editandoPerfil" [formGroup]="perfilForm" (ngSubmit)="salvarPerfil()">
+  <form *ngIf="editandoPerfil" [formGroup]="perfilForm">
     <div class="flex flex-col md:flex-row md:space-x-4">
       <!-- Lado Esquerdo -->
       <div class="w-full md:w-1/2">
@@ -97,7 +93,7 @@
         <div class="mb-4">
           <label for="email" class="block text-sm font-medium">Email</label>
           <input id="email" formControlName="email" type="text" placeholder="Email"
-            class="border p-2 w-full rounded-md" readonly/>
+            class="border p-2 w-full rounded-md" />
         </div>
         <div class="mb-4">
           <label for="foto" class="block text-sm font-medium">Foto</label>
@@ -129,11 +125,8 @@
       
     </div>
 
-  <div class="mt-6 flex gap-2 justify-end">
-    <button type="button" (click)="cancelarEdicao()" class="bg-gray-300 px-4 py-2 rounded-md">Cancelar</button>
-    <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-md">Salvar</button>
-  </div>
 </form>
+
 
         <div *ngIf="!editandoPerfil" class="grid grid-cols-1 gap-y-4">
               <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8">
@@ -168,19 +161,10 @@
                 <span class="text-sm font-medium text-gray-500"> Pontos</span>
                 <span class="mt-1 text-gray-800">{{ usuarioLogado?.pontos }}</span>
           </div>
-      <div class="flex flex-col pb-3">
-        <span class="text-sm font-medium text-gray-500 pb-4">Loja</span>
-        <button
-          (click)="onToggleLojaStatus()"
-          class="relative flex items-center h-8 w-16 rounded-full transition-colors duration-300 ease-in-out cursor-pointer focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-          [ngClass]="{ 'bg-green-500': statusLoja(), 'bg-red-500': !statusLoja() }"
-        >
-          <span
-            class="transform transition-transform duration-300 ease-in-out w-6 h-6 bg-white rounded-full shadow-md"
-            [ngClass]="{ 'translate-x-9': statusLoja(), 'translate-x-1': !statusLoja() }"
-          ></span>
-        </button>
-      </div>
+            <div class="flex flex-col pb-3">
+                <span class="text-sm font-medium text-gray-500">Loja </span>
+                <span class="mt-1 text-gray-800"> Ativo </span>
+            </div>
         </div>
         </div>
       </div>
@@ -234,82 +218,68 @@
       <div>
         <label for="cep" class="block text-sm font-medium text-gray-700">CEP</label>
         <div class="flex space-x-2 mt-1">
-
- <input
-              type="text"
-              id="cep"
-              formControlName="cep"
-              class="border p-2 flex-1 rounded-md focus:border-blue-500 focus:ring-blue-500 focus:ring-opacity-50"
-              placeholder="26700-000"
-              (input)="onCepChange()"
-              [ngClass]="{'border-red-500': enderecoForm.get('cep')?.invalid && enderecoForm.get('cep')?.touched}"
-            />
-<div *ngIf="loadingCep()" class="absolute right-2 top-2">
-              <svg class="animate-spin h-5 w-5 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8h8a8 8 0 01-16 0z"></path>
-              </svg>
-            </div>
-    <button type="button" (click)="onCepHelp()" class="px-4 py-2 bg-blue-500 text-white rounded-md whitespace-nowrap hover:bg-blue-600 transition-colors duration-200">Não sei CEP</button>
+          <input
+            type="text"
+            id="cep"
+            formControlName="cep"
+            class="border p-2 flex-1 rounded-md focus:border-blue-500 focus:ring-blue-500 focus:ring-opacity-50"
+            placeholder="26700-000"
+            [ngClass]="{'border-red-500': enderecoForm.get('cep')?.invalid && enderecoForm.get('cep')?.touched}"
+            readonly
+          />
+          <div *ngIf="loadingCep()" class="absolute right-2 top-2">
+            <svg class="animate-spin h-5 w-5 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8h8a8 8 0 01-16 0z"></path>
+            </svg>
+          </div>
         </div>
         <div *ngIf="enderecoForm.get('cep')?.invalid && enderecoForm.get('cep')?.touched" class="text-red-500 text-sm">
           CEP é obrigatório.
         </div>
       </div>
 
-      <!-- Estado -->
       <div>
         <label for="estado" class="block text-sm font-medium text-gray-700">Estado</label>
-        <input type="text" id="estado" formControlName="estado" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50" placeholder="Ex: RJ" />
+        <input type="text" id="estado" formControlName="estado" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50" placeholder="Ex: RJ" readonly />
         <div *ngIf="enderecoForm.get('estado')?.invalid && enderecoForm.get('estado')?.touched" class="text-red-500 text-sm">
           Estado é obrigatório.
         </div>
       </div>
 
-      <!-- Cidade -->
       <div>
         <label for="cidade" class="block text-sm font-medium text-gray-700">Cidade</label>
-        <input type="text" id="cidade" formControlName="cidade" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50" placeholder="Ex: Mendes" />
+        <input type="text" id="cidade" formControlName="cidade" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50" placeholder="Ex: Mendes" readonly />
         <div *ngIf="enderecoForm.get('cidade')?.invalid && enderecoForm.get('cidade')?.touched" class="text-red-500 text-sm">
           Cidade é obrigatória.
         </div>
       </div>
 
-      <!-- Bairro -->
       <div>
         <label for="bairro" class="block text-sm font-medium text-gray-700">Bairro</label>
-        <!-- <select id="bairro" formControlName="bairro" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50">
-          <option value="">Selecione um bairro</option>
-          <option value="test">Selecione um bairro</option>
-           Adicione opções dinâmicas aqui, se necessário 
-        </select>-->
-        <input type="text" id="bairro" formControlName="bairro" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50" placeholder="Ex.: Ventania" />
-
+        <input type="text" id="bairro" formControlName="bairro" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50" placeholder="Ex.: Ventania" readonly />
         <div *ngIf="enderecoForm.get('bairro')?.invalid && enderecoForm.get('bairro')?.touched" class="text-red-500 text-sm">
           Bairro é obrigatório.
         </div>
       </div>
 
-      <!-- Rua -->
       <div>
         <label for="rua" class="block text-sm font-medium text-gray-700">Rua / Avenida</label>
-        <input type="text" id="rua" formControlName="rua" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50" placeholder="Ex.: Avenida los Leones, 4565" />
+        <input type="text" id="rua" formControlName="rua" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50" placeholder="Ex.: Avenida los Leones, 4565" readonly />
         <div *ngIf="enderecoForm.get('rua')?.invalid && enderecoForm.get('rua')?.touched" class="text-red-500 text-sm">
           Rua é obrigatória.
         </div>
       </div>
 
-      <!-- Complemento -->
       <div>
         <label for="complemento" class="block text-sm font-medium text-gray-700">Complemento (opcional)</label>
-        <input type="text" id="complemento" formControlName="complemento" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50" placeholder="Ex: 201" />
+        <input type="text" id="complemento" formControlName="complemento" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50" placeholder="Ex: 201" readonly />
       </div>
 
-      <!-- Número -->
       <div>
         <label for="numero" class="block text-sm font-medium text-gray-700">Número</label>
         <div class="flex items-center space-x-2 mt-1">
-          <input type="text" id="numero" formControlName="numero" class="border p-2 flex-1 rounded-md focus:border-blue-500 focus:ring-blue-500 focus:ring-opacity-50" placeholder="Ex: 45607052"/>
+          <input type="text" id="numero" formControlName="numero" class="border p-2 flex-1 rounded-md focus:border-blue-500 focus:ring-blue-500 focus:ring-opacity-50" placeholder="Ex: 45607052" readonly />
           <label for="semNumero" class="flex items-center text-sm text-gray-700 whitespace-nowrap">
             <input type="checkbox" id="semNumero" formControlName="isSemNumero" class="mr-2" />
             Sem número
@@ -320,38 +290,17 @@
         </div>
       </div>
 
-      <!-- Localidade (mantida como readonly, sem formControlName) -->
       <div>
         <p class="text-sm text-gray-700 font-medium">Localidade</p>
         <p class="text-gray-900 mt-1">{{ enderecoForm.get('cidade')?.value || 'Rio de Janeiro' }}, {{ enderecoForm.get('estado')?.value || 'RJ' }}</p>
       </div>
 
-      <!-- Informações Adicionais -->
       <div class="md:col-span-2">
         <label for="infoAdicionais" class="block text-sm font-medium text-gray-700">Informações adicionais deste endereço (opcional)</label>
-        <textarea id="infoAdicionais" formControlName="adicional" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50" placeholder="Rua Alto da Boa Vista, 133&#10;Subida Xavier"></textarea>
+        <textarea id="infoAdicionais" formControlName="adicional" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50" placeholder="Rua Alto da Boa Vista, 133&#10;Subida Xavier" readonly></textarea>
       </div>
     </div>
 
-    <div class="mt-4 flex flex-wrap justify-between items-center">
-<p class="text-sm text-gray-700">{{ contagemCaracteres }} / 255</p>
-      <div class="mt-2 md:mt-0">
-        <p class="text-sm text-gray-700">Este é o seu trabalho ou sua casa?</p>
-        <div class="flex space-x-4 mt-2 pb-4">
-          <label class="flex items-center">
-            <input type="radio" name="location" value="casa" class="mr-2" />
-            Casa
-          </label>
-          <label class="flex items-center">
-            <input type="radio" name="location" value="trabalho" class="mr-2" />
-            Trabalho
-          </label>
-        </div>
-        <button type="submit" class="p-4 pr-10 pl-10 bg-blue-500 text-white rounded-md whitespace-nowrap hover:bg-blue-600 transition-colors duration-200" [disabled]="!enderecoForm.valid">
-          Salvar Endereço
-        </button>
-      </div>
-    </div>
   </form>
   <div *ngIf="message" [ngClass]="{'text-red-500': isError, 'text-green-500': !isError}" class="mt-4">
     {{ message }}

@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { EnderecoPayload, EnderecoResponse, ViaCepResponse } from '../../pages/perfil/perfil.component';
-import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpHeaders, HttpParams } from '@angular/common/http';
 import { catchError, Observable, throwError } from 'rxjs';
 import { AuthService } from '../autenticacao/auth.service';
 
@@ -44,6 +44,23 @@ export class EnderecoService {
       });
 
       return this.http.get<EnderecoResponse>(`${this.apiUrl}/usuario`, { headers: headers }).pipe(
+        catchError(this.handleError)
+      );
+  }
+    public buscarEnderecoPorEmail(email: string): Observable<EnderecoResponse> {
+      const token = this.authService.getTokenLocalStorage();
+
+      if (!token) {
+        return throwError(() => new Error('Authentication token not found.'));
+      }
+
+      const headers = new HttpHeaders({
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      });
+
+      const params = new HttpParams().set('email', email);
+      return this.http.get<EnderecoResponse>(`${this.apiUrl}/email`, { headers: headers, params:params }).pipe(
         catchError(this.handleError)
       );
   }

@@ -1,5 +1,3 @@
-<p>detalhes-produto works!</p>
-
 <div *ngIf="isLoading">Carregando...</div>
 <div *ngIf="errorMessage" class="error">{{ errorMessage }}</div>
 <div *ngIf="produto">
@@ -29,22 +27,22 @@
     <h2 class="text-4xl font-bold text-blue-600">  Preço: R{{ produto.preco | currency }}</h2>
     <p class="text-gray-600">preço à vista</p>
   </div>
-  <form>
+  <form  [formGroup]="perfilForm">
     <div class="mb-4">
       <label for="name" class="block text-gray-700 text-sm font-bold mb-2">Nome:</label>
-      <input type="text" id="name" class="w-full p-3 border border-gray-300 rounded-md" placeholder="Nome" />
+      <input type="text" id="name"  formControlName="nome" [readonly]="true" class="w-full p-3 border border-gray-300 rounded-md" placeholder="Nome" />
     </div>
     <div class="mb-4">
       <label for="email" class="block text-gray-700 text-sm font-bold mb-2">E-mail:</label>
-      <input type="email" id="email" class="w-full p-3 border border-gray-300 rounded-md" placeholder="Email" />
+      <input type="email" id="email"  formControlName="email"  [readonly]="true" class="w-full p-3 border border-gray-300 rounded-md" placeholder="Email" />
     </div>
     <div class="mb-4">
       <label for="phone" class="block text-gray-700 text-sm font-bold mb-2">Telefone:</label>
-      <input type="tel" id="phone" class="w-full p-3 border border-gray-300 rounded-md" placeholder="DDD e Telefone" />
+      <input type="tel" id="phone"  formControlName="telefone"  [readonly]="true" class="w-full p-3 border border-gray-300 rounded-md" placeholder="DDD e Telefone" />
     </div>
     <div class="mb-4">
       <label for="observations" class="block text-gray-700 text-sm font-bold mb-2">Observações</label>
-      <textarea id="observations" class="w-full p-3 border border-gray-300 rounded-md" placeholder=" "></textarea>
+      <textarea id="endereco" formControlName="endereco" [readonly]="true" class="w-full p-3 border border-gray-300 rounded-md" placeholder=" "></textarea>
     </div>
     <!--
     <div class="mb-4">
@@ -57,13 +55,17 @@
       *Ao interagir com os botões abaixo você afirma ter mais de 18 anos e aceita nossos Termos de Uso e Política de Privacidade. Compartilharemos seus dados com esse e outros anunciantes parceiros para ofertas similares à sua busca.
     </div>
 <div class="flex justify-between mb-4">
-  <button type="button" class="bg-blue-500 text-white px-16 py-3 rounded-lg text-lg">Simular</button>
-  <button type="button" class="bg-blue-500 text-white px-16 py-3 rounded-lg text-lg">Mensagem</button>
+  <a href="/perfil">
+    <button type="button" target="_blank" class="bg-green-500 text-white px-16 py-3 rounded-lg text-lg">Editar</button>
+  </a>
+  <a [href]="'https://wa.me/'+usuarioLogado?.telefone" target="_blank">
+    <button type="button" class="bg-green-500 text-white px-16 py-3 rounded-lg text-lg">Whatsapp</button>
+  </a>  
 </div>
     <div class="text-center mb-4">ou</div>
     <div class="text-center">
-      <button type="button" class="bg-green-500 text-white px-6 py-3 rounded-lg w-full flex items-center justify-center text-lg">
-        Enviar whatsapp <span class="ml-2">📞</span>
+      <button type="button" (click)="adicionarAoCarrinho(produto)" class="bg-blue-600 text-white px-6 py-3 rounded-lg w-full flex items-center justify-center text-lg">
+        Comprar <span class="ml-2"></span>
       </button>
     </div>
   </form>

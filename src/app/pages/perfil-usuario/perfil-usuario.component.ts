@@ -1,35 +1,13 @@
 import { NgClass, NgFor, NgIf, CommonModule } from '@angular/common';
 import { Component, OnInit, signal } from '@angular/core';
 import { AuthService } from '../../services/autenticacao/auth.service';
-import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
-import { Router, RouterLink } from '@angular/router';
+import { HttpClient, HttpErrorResponse, HttpHeaders, HttpParams } from '@angular/common/http';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { catchError, debounceTime, distinctUntilChanged, Observable, of, Subject, switchMap, throwError } from 'rxjs';
 import { EnderecoService } from '../../services/endereco/endereco.service';
 import { UsuariosService } from '../../services/usuario/usuarios.service';
-
-export interface Perfil {
-  nome: string;
-  sobrenome: string;
-  email: string;
-  cpf: string;
-  telefone: string;
-  foto: string;
-  documento: string;
-  pontos: string;
-  loja: boolean;
-}
-
-export interface UsuarioUpdate {
-  nome: string;
-//  email: string;
-  cpf: string;
-  //cnpj: string;
-  telefone: string;
-  foto: string;
-  //pontos: number;
-  //loja: boolean;
-}
+import { Perfil } from '../perfil/perfil.component';
 
 export interface ViaCepResponse {
   cep: string;
@@ -44,7 +22,7 @@ export interface ViaCepResponse {
   siafi: string;
   erro?: boolean;
 }
-interface UsuarioId {
+interface Usuario {
   id: string;
 }
 
@@ -57,7 +35,7 @@ export interface EnderecoPayload {
   adicional: string;
   bairro: string;
   complemento: string;
-  usuario: UsuarioId;
+  usuario: Usuario;
 }
 export interface EnderecoResponse extends EnderecoPayload {
   id: string; 
@@ -79,14 +57,15 @@ interface Produto {
 }
 
 @Component({
-  selector: 'app-perfil',
+  selector: 'app-perfil-usuario',
   standalone: true,
   imports: [NgClass, NgIf, NgFor, RouterLink, ReactiveFormsModule, CommonModule, FormsModule],
-  templateUrl: './perfil.component.html',
-  styleUrl: './perfil.component.scss'
+  templateUrl: './perfil-usuario.component.html',
+  styleUrl: './perfil-usuario.component.scss'
 })
-export class PerfilComponent implements OnInit {
-  private apiUrl = 'http://localhost:8081/api/produtos/meus-produtos';
+export class PerfilUsuarioComponent {
+
+  private apiUrl = 'http://localhost:8081/api/produtos';
   contagemCaracteres: number = 0;
 
   usuarioLogado: Perfil | null = null;
@@ -97,12 +76,10 @@ export class PerfilComponent implements OnInit {
   isLoading: boolean = true;
   message: string | null = null;
   isError: boolean = false;
-
-  statusLoja = signal<boolean>(false);
-  isLoadingStatusLoja = signal<boolean>(false);
-
+  isToggled = signal(false);
 
   produtos: Produto[] = [];
+  email : string | null = "";
 
   activeTab: 'perfil' | 'produtos' | 'vendas' = 'perfil';
   enderecoExistente: EnderecoResponse | null = null;
@@ -119,7 +96,9 @@ export class PerfilComponent implements OnInit {
     private router: Router,
     private fb: FormBuilder,
     private enderecoService: EnderecoService,
-    private usuarioService: UsuariosService
+    private usuarioService: UsuariosService,
+    private route: ActivatedRoute, 
+
   ) { }
 
   ngOnInit(): void {
@@ -127,13 +106,28 @@ export class PerfilComponent implements OnInit {
     this.perfilForm = this.fb.group({
       nome: [''],
       sobrenome: [''],
-      email:[''],
-      cpf: [''],
       foto: [''],
       telefone: [''],
+      cpf: [''],
+      email:[''],
+      documento:[''],
+      pontos:['']
     });
-    this.buscarEndereco();
+     this.route.queryParamMap.subscribe(queryParams => {
+      // A variável aqui pode ter qualquer nome, usei 'queryParams' para clareza
+      this.email = queryParams.get('email'); // .get('email') busca a chave 'email' após o '?'
 
+      if (this.email) {
+        this.fetchUsuarioLogado(this.email);
+        this.buscarEndereco(this.email);
+        this.carregarProdutosEmail(this.email);
+      } else {
+        console.error('Nenhum email encontrado nos parâmetros de consulta da URL.');
+        this.isError = true;
+        this.message = 'Perfil não encontrado.';
+        this.isLoading = false;
+      }
+});
     this.enderecoForm = this.fb.group({
       cidade: ['', Validators.required],
       estado: ['', Validators.required],
@@ -154,59 +148,18 @@ export class PerfilComponent implements OnInit {
         numeroControl?.enable();
       }
     });
+  }
 
-    this.cepSubject.pipe(
-        debounceTime(500),
-        distinctUntilChanged(),
-        switchMap(cep => {
-          if (this.enderecoForm.get('cep')?.valid) {
-            this.loadingCep.set(true);
-            this.cepError.set(null);
-            return this.enderecoService.buscarCep(cep).pipe(
-              catchError(err => {
-                this.cepError.set(err.message);
-                this.loadingCep.set(false);
-                return of(null);
-              })
-            );
-          }
-          return of(null);
-        })
-      ).subscribe((data: ViaCepResponse | null) => {
-        this.loadingCep.set(false);
-        if (data && !data.erro) {
-          this.enderecoForm.patchValue({
-            estado: data.uf,
-            cidade: data.localidade,
-            bairro: data.bairro,
-            rua: data.logradouro,
-            complemento: data.complemento,
-          });
-          this.cepError.set(null);
-        } else if (data?.erro) {
-          this.cepError.set('CEP não encontrado.');
-          this.clearAddressFields();
-        }
-      });
-
-
-      this.enderecoForm.get('adicional')?.valueChanges.subscribe(value => {
-        this.contagemCaracteres = value.length;
-      });
-      this.carregarProdutos();
-      this.fetchUsuarioLogado();
-    }
-
-fetchUsuarioLogado(): void {
+  fetchUsuarioLogado(email: string): void {
     this.isLoading = true;
     this.message = null;
     this.isError = false;
-
-    this.usuarioService.fetchUsuarioLogado().subscribe({
+    console.log('Email para buscar perfil:', email);
+    this.usuarioService.fetchMostrarPerfil(email).subscribe({
       next: (usuario) => {
         this.usuarioLogado = usuario;
-
         if (this.usuarioLogado) {
+           
           this.perfilForm.patchValue({
             nome: this.usuarioLogado.nome,
             sobrenome: this.usuarioLogado.sobrenome,
@@ -217,8 +170,6 @@ fetchUsuarioLogado(): void {
             pontos: this.usuarioLogado.pontos
           });
         }
-        this.statusLoja.set(this.usuarioLogado.loja);
-
         this.isLoading = false;
         console.log('Dados do usuário logado:', this.usuarioLogado);
       },
@@ -232,7 +183,7 @@ fetchUsuarioLogado(): void {
   }
 
 
-  carregarProdutos(): void {
+  carregarProdutosEmail(email: string): void {
     const token = this.authService.getTokenLocalStorage();
     console.log('Token de autenticação:', token);
 
@@ -240,8 +191,9 @@ fetchUsuarioLogado(): void {
       const headers = new HttpHeaders({
         'Authorization': `Bearer ${token}`
       });
+      const params = new HttpParams().set('email', email);
 
-      this.http.get<Produto[]>(this.apiUrl, { headers: headers })
+      this.http.get<Produto[]>(this.apiUrl+'/loja', { headers: headers, params: params })
         .subscribe({
           next: (data) => {
             this.produtos = data;
@@ -261,63 +213,6 @@ fetchUsuarioLogado(): void {
     }
   }
   
-  habilitarEdicao(): void {
-    this.editandoPerfil = true;
-  }
-
- salvarPerfil(): void {
-    if (this.perfilForm.invalid) {
-      // Opcional: pode exibir uma mensagem informando que o formulário é inválido
-      this.message = 'Por favor, preencha os campos obrigatórios.';
-      this.isError = true;
-      return;
-    }
-    const dadosAtualizados = this.perfilForm.value;
-    var usuarioUpdate : UsuarioUpdate = {
-      nome: dadosAtualizados.nome + ' ' + dadosAtualizados.sobrenome,
-      cpf: dadosAtualizados.cpf,
-      telefone: dadosAtualizados.telefone,
-      foto: dadosAtualizados.foto,
-    };
-    
-    // A lógica complexa foi movida. Agora apenas chamamos o serviço.
-    this.usuarioService.atualizarPerfil(usuarioUpdate)
-      .subscribe({
-        next: (usuarioAtualizado) => {
-          // O componente lida com a resposta de SUCESSO e atualiza a VIEW
-          this.usuarioLogado = { ...this.usuarioLogado, ...usuarioAtualizado };
-          this.editandoPerfil = false;
-          this.message = 'Perfil atualizado com sucesso!';
-          this.isError = false;
-          console.log('Perfil salvo com sucesso:', usuarioAtualizado);
-          
-          // Recarrega a página após o salvamento bem-sucedido
-          window.location.reload();
-        },
-        error: (error) => {
-          // O componente lida com a resposta de ERRO e atualiza a VIEW
-          this.isError = true;
-          // Podemos usar a mensagem de erro vinda do serviço ou uma genérica
-          this.message = error.message || 'Erro ao salvar o perfil. Tente novamente.';
-          console.error('Erro na requisição de atualização:', error);
-        }
-      });
-  }
-  cancelarEdicao(): void {
-    this.editandoPerfil = false;
-    // Restaura os valores do formulário para os dados originais do usuário
-    if (this.usuarioLogado) {
-        this.perfilForm.patchValue({
-        nome: this.usuarioLogado.nome,
-        sobrenome: this.usuarioLogado.sobrenome,
-        foto: this.usuarioLogado.foto,
-        telefone: this.usuarioLogado.telefone,
-        cpf: this.usuarioLogado.cpf,
-        email: this.usuarioLogado.email,
-          
-      });
-    }
-  }
 
   setActiveTab(tab: 'perfil' | 'produtos' | 'vendas'): void {
     this.activeTab = tab;
@@ -334,8 +229,8 @@ fetchUsuarioLogado(): void {
     usuario: { id: 'a1b2c3d4-e5f6-7890-1234-567890abcdef'}
   };
 
-  buscarEndereco(): void {
-    this.enderecoService.buscarEnderecoDoUsuarioLogado().subscribe({
+  buscarEndereco(email: string): void {
+    this.enderecoService.buscarEnderecoPorEmail(email).subscribe({
       next: (endereco: EnderecoResponse) => {
         this.enderecoExistente = endereco;
         this.enderecoForm.patchValue(endereco);
@@ -392,6 +287,12 @@ fetchUsuarioLogado(): void {
       this.enderecoForm.markAllAsTouched();
     }
   }
+  toggle(): void {
+    this.isToggled.update(value => {
+      return !value;
+    });
+  }
+
   salvarEndereco(): void {
     this.message = null;
     this.isError = false;
@@ -435,36 +336,8 @@ fetchUsuarioLogado(): void {
   }
 
   
-   cepValidator() {
-    return (control: import('@angular/forms').AbstractControl) => {
-      const cep = control.value;
-      if (!cep) return null;
-      const cleanedCep = cep.replace(/\D/g, '');
-      return /^\d{8}$/.test(cleanedCep) ? null : { invalidCep: true };
-    };
-  }
 
-  onCepChange(): void {
-    const cep = this.enderecoForm.get('cep')?.value;
-    if (cep) {
-      this.cepSubject.next(cep);
-    }
-  }
 
-  
-  onCepHelp(): void {
-    window.open('https://buscacepinter.correios.com.br/', '_blank');
-  }
-
-  private clearAddressFields(): void {
-    this.enderecoForm.patchValue({
-      estado: '',
-      cidade: '',
-      bairro: '',
-      rua: '',
-      complemento: '',
-    });
-  }
   /*
   onCepChange(): void {
     const cepControl = this.enderecoForm.get('cep');
@@ -502,58 +375,10 @@ fetchUsuarioLogado(): void {
       });
     }
   }*/
-
-
 /*
   onCepHelp(): void {
     console.log("Abrir link para busca de CEP");  
   }*/
-onToggleLojaStatus(): void {
-  // 1. Guarda para evitar múltiplos cliques (Lógica Perfeita)
-  if (this.isLoadingStatusLoja()) {
-    return;
-  }
-
-  // 2. Inicia o carregamento (Lógica Perfeita)
-  this.isLoadingStatusLoja.set(true);
-
-  // 3. Determina o próximo estado (Lógica Perfeita)
-  const proximoEstado = !this.statusLoja();
-
-  // 4. Chama o serviço para persistir a mudança
-  this.usuarioService.atualizaToggleLoja(proximoEstado).subscribe({
-    next: (perfilAtualizado) => {
-      this.statusLoja.set(perfilAtualizado.loja); 
-      console.log('Status da loja atualizado para:', perfilAtualizado.loja);
-    },
-    error: (err) => {
-      // FALHA!
-      console.error('Erro ao atualizar o status da loja:', err);
-    },
-    complete: () => {
-      this.isLoadingStatusLoja.set(false);
-    }
-  });
-}
-  
-     public buscarCep(cep: string): Observable<ViaCepResponse> {
-
-    const cleanedCep = cep.replace(/\D/g, '');
-    const url = `https://viacep.com.br/ws/${cleanedCep}/json/`;
-
-    return this.http.get<ViaCepResponse>(url).pipe(
-      catchError(this.handleViaCepError)
-    );
-  }
-
-  private handleViaCepError(error: HttpErrorResponse): Observable<never> {
-    if (error.status === 400 || error.status === 404) {
-      console.error('CEP not found or invalid format.');
-
-      return throwError(() => new Error('CEP não encontrado ou formato inválido.'));
-    }
-    return throwError(() => new Error(`Erro ${error.status}: ${error.message || 'Something went wrong with ViaCEP request'}`));
-  }
 
 }
 

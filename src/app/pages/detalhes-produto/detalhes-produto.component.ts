@@ -7,6 +7,10 @@ import { ProdutoService } from '../../services/produto/produto.service';
 import { CarrinhoServiceService } from '../../services/carrinho-service.service';
 import { Observable } from 'rxjs';
 import { AuthService } from '../../services/autenticacao/auth.service'; // Importe o AuthService
+import { UsuariosService } from '../../services/usuario/usuarios.service';
+import { EnderecoResponse, Perfil } from '../perfil/perfil.component';
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { EnderecoService } from '../../services/endereco/endereco.service';
 
 export interface Produto {
   id: string;
@@ -21,7 +25,7 @@ export interface Produto {
 @Component({
   selector: 'app-detalhes-produto',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule,ReactiveFormsModule,FormsModule],
   templateUrl: './detalhes-produto.component.html',
   styleUrl: './detalhes-produto.component.scss',
 })
@@ -30,17 +34,30 @@ export class DetalhesProdutoComponent implements OnInit {
   isLoading = true;
   errorMessage: string | undefined;
   carrinho: any[] = [];
-
+  perfilForm!: FormGroup;
+  usuarioLogado : Perfil | null = null;
+  enderecoUsuario: EnderecoResponse | null = null;
   constructor(
     private produtoService: ProdutoService,
+    private usuarioService: UsuariosService,
+    private enderecoService: EnderecoService,
     private carrinhoService: CarrinhoServiceService,
     private route: ActivatedRoute,
     private router: Router,
-    private authService: AuthService
+    private authService: AuthService,
+    private fb: FormBuilder, 
   ) {}
 
   ngOnInit(): void {
     const token = this.authService.getTokenLocalStorage();
+    this.fetchUsuarioLogado();
+    this.perfilForm = this.fb.group({
+      nome: [''],
+      email: [''],
+      telefone: [''],
+      endereco: ['']
+    });
+    this.buscarEndereco();
     this.carregarCarrinho();
     this.route.paramMap.pipe(
       switchMap(params => {
@@ -84,6 +101,29 @@ export class DetalhesProdutoComponent implements OnInit {
       },
     });
   }
+  fetchUsuarioLogado(): void {
+    this.isLoading = true;
+
+    this.usuarioService.fetchUsuarioLogado().subscribe({
+      next: (usuario) => {
+        this.usuarioLogado = usuario;
+        if (this.usuarioLogado) {
+          this.perfilForm.patchValue({
+            nome: this.usuarioLogado.nome + " " + this.usuarioLogado.sobrenome,
+            email: this.usuarioLogado.email,
+            telefone: this.usuarioLogado.telefone,
+            foto: this.usuarioLogado.foto
+          });
+        }
+       // this.isLoading = false;
+        console.log('Dados do usuário logado:', this.usuarioLogado);
+      },
+      error: (error) => {
+       // this.isLoading = false;
+        console.error('Erro na requisição:', error);
+      }
+    });
+  }
 
   //Métodos de carrinho não foram alterados
   carregarCarrinho(): void {
@@ -92,7 +132,28 @@ export class DetalhesProdutoComponent implements OnInit {
       this.carrinho = JSON.parse(carrinhoSalvo);
     }
   }
-
+  buscarEndereco(): void {
+    this.enderecoService.buscarEnderecoDoUsuarioLogado().subscribe({
+      next: (endereco: EnderecoResponse) => {
+        this.enderecoUsuario = endereco;
+        this.perfilForm.patchValue({
+          endereco: this.enderecoUsuario.rua + ', ' + this.enderecoUsuario.numero + (this.enderecoUsuario.complemento ? ', ' + this.enderecoUsuario.complemento : '') + ' - ' + this.enderecoUsuario.bairro + ', ' + this.enderecoUsuario.cidade + ' - ' + this.enderecoUsuario.estado + ', CEP: ' + this.enderecoUsuario.cep
+        });
+        console.log('Endereço encontrado e preenchido:', endereco);
+      },
+      error: (error: HttpErrorResponse) => {
+        
+        if (error.status === 404) {
+          console.log('Nenhum endereço encontrado para o usuário. Prepare para cadastrar.');
+          this.enderecoUsuario = null; // Garante que o estado seja limpo
+        } else {
+          console.error('Erro ao buscar o endereço:', error);
+          //this.isError = true;
+          //this.message = 'Erro ao buscar seu endereço. Tente novamente mais tarde.';
+        }
+      }
+    });
+  }
   salvarCarrinho(): void {
     localStorage.setItem('carrinho', JSON.stringify(this.carrinho));
   }
@@ -101,5 +162,8 @@ export class DetalhesProdutoComponent implements OnInit {
     this.carrinhoService.adicionarAoCarrinho(produto);
     this.carrinho = this.carrinhoService.obterCarrinho();
     this.salvarCarrinho();
+
+    const url = `/carrinho`;
+    window.location.href = url;
   }
 }

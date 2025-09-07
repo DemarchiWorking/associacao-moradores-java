@@ -4,6 +4,7 @@ import { RouterLink } from '@angular/router';
 import { CarrinhoServiceService } from '../../services/carrinho-service.service';
 import { Subscription } from 'rxjs';
 import { FormsModule } from '@angular/forms';
+import { AuthService } from '../../services/autenticacao/auth.service';
 
 @Component({
   selector: 'app-header',
@@ -21,7 +22,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   carrinho: any[] = [];
   private carrinhoSubscription: Subscription | undefined;
 
-  constructor(private carrinhoService: CarrinhoServiceService) {}
+  constructor(private carrinhoService: CarrinhoServiceService, private authService: AuthService) {}
 
   ngOnInit(): void {
     // Inscreve-se no Observable carrinho$ para atualizar automaticamente
@@ -29,7 +30,17 @@ export class HeaderComponent implements OnInit, OnDestroy {
       this.carrinho = carrinho;
     });
   }
+  estaLogado(): boolean {
+    return this.authService.isLoggedIn();
+  }
+  deslogar() {
+    this.authService.removeToken();
+    const url = `/`;
+  
+    // Redireciona o navegador para a nova URL
+    window.location.href = url;
 
+  }
   ngOnDestroy(): void {
     // Cancela a subscrição para evitar memory leaks
     if (this.carrinhoSubscription) {

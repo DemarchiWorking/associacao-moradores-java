@@ -1,9 +1,9 @@
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { PedidoRequest, PedidoResponse } from '../../pages/carrinho-compras/carrinho-compras.component';
 import { catchError, Observable, throwError } from 'rxjs';
 import { AuthService } from '../autenticacao/auth.service';
-import { ItemPedido } from '../../pages/pedidos/pedidos.component';
+import { ItemPedido, PaginaResponse } from '../../pages/pedidos/pedidos.component';
 
 @Injectable({
   providedIn: 'root'
@@ -14,36 +14,44 @@ private apiUrl = 'http://localhost:8081/api'; // Substitua pela sua URL real
 
   constructor(private http: HttpClient, private authService: AuthService) { }
 
-  
-  buscarPedidosVendidos(): Observable<ItemPedido[]> {
+ private buscaOpcaoRequest(page: number, size: number) {
     const token = this.authService.getTokenLocalStorage();
-
     if (!token) {
-      return throwError(() => new Error('Authentication token not found.'));
+      throw new Error('Authentication token not found.'); // Lança um erro síncrono
     }
+
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${token}`
     });
 
-    return this.http.get<ItemPedido[]>(`${this.apiUrl}/item/vendedor`, { headers }).pipe(
-      catchError(this.handleError)
-    );
-  }
-  buscarPedidosComprados(): Observable<ItemPedido[]> {
-    const token = this.authService.getTokenLocalStorage();
+    const params = new HttpParams()
+      .set('page', page.toString())
+      .set('size', size.toString());
 
-    if (!token) {
-      return throwError(() => new Error('Authentication token not found.'));
+    return { headers, params };
+  }
+
+  buscarPedidosComprados(page: number, size: number): Observable<PaginaResponse<ItemPedido>> {
+    try {
+      const options = this.buscaOpcaoRequest(page, size);
+      return this.http.get<PaginaResponse<ItemPedido>>(`${this.apiUrl}/item/comprador`, options).pipe(
+        catchError(this.handleError)
+      );
+    } catch (error) {
+      return throwError(() => error); // Converte o erro síncrono em um Observable de erro
     }
-    const headers = new HttpHeaders({
-      'Authorization': `Bearer ${token}`
-    });
-
-    return this.http.get<ItemPedido[]>(`${this.apiUrl}/item/comprador`, { headers }).pipe(
-      catchError(this.handleError)
-    );
   }
 
+  buscarPedidosVendidos(page: number, size: number): Observable<PaginaResponse<ItemPedido>> {
+    try {
+      const options = this.buscaOpcaoRequest(page, size);
+      return this.http.get<PaginaResponse<ItemPedido>>(`${this.apiUrl}/item/vendedor`, options).pipe(
+        catchError(this.handleError)
+      );
+    } catch (error) {
+      return throwError(() => error);
+    }
+  }
   criarPedido(pedido: PedidoRequest): Observable<PedidoResponse> {
     const token = this.authService.getTokenLocalStorage();
 

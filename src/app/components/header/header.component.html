@@ -27,8 +27,8 @@
               </li>
 
             <li class="shrink-0">
-              <a href="#" title="" class="flex pairar font-roboto text-xl text-black font-semibold hover:text-primary-700 dark:text-white dark:hover:text-primary-500">
-                Programas
+              <a href="/painel" title="" class="flex pairar font-roboto text-xl text-black font-semibold hover:text-primary-700 dark:text-white dark:hover:text-primary-500">
+                Painel
               </a>
             </li>
             <li class="shrink-0">
@@ -38,7 +38,7 @@
             </li>
             <li class="shrink-0">
               <a href="/contato" title="" class="pairar font-roboto text-xl text-black font-semibold hover:text-primary-700 dark:text-white dark:hover:text-primary-500">
-                Contato
+                Vitrine
               </a>
             </li>
   
@@ -176,8 +176,16 @@
             <button id="userDropdownButton1" data-dropdown-toggle="userDropdown1" type="button" class="inline-flex items-center rounded-lg justify-center p-2 hover:bg-gray-100 dark:hover:bg-gray-700 text-sm font-medium leading-none text-gray-900 dark:text-white">
                 <svg class="w-5 h-5 me-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
                 <path stroke="currentColor" stroke-width="2" d="M7 17v1a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-1a3 3 0 0 0-3-3h-4a3 3 0 0 0-3 3Zm8-9a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/>
-                </svg>              
-                Entrar 
+                </svg>      
+
+                <ng-container *ngIf="estaLogado(); else showEntrar">
+                  Menu 
+                </ng-container>
+
+              <ng-template #showEntrar>
+                  Entrar 
+              </ng-template>
+                
                 <svg class="w-4 h-4 text-gray-900 dark:text-white ms-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
                 <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 9-7 7-7-7"/>
                 </svg> 
@@ -188,14 +196,23 @@
               <li><a href="/perfil" title="" class="inline-flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-600"> Perfil </a></li>
               <li><a href="/pedidos" title="" class="inline-flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-600"> Pedidos </a></li>
               <li><a href="/cadastrar-produto" title="" class="inline-flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-600"> Cadastrar Produtos </a></li>
+              <li><a href="/painel" title="" class="inline-flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-600"> Painel </a></li>
               <li><a href="#" title="" class="inline-flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-600"> Configuração </a></li>
               <li><a href="#" title="" class="inline-flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-600"> Endereço | Entrega </a></li>
               <li><a href="/entrar" title="" class="inline-flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-600">  </a></li>
             </ul>
         
-            <div class="p-2 text-sm font-medium text-gray-900 dark:text-white">
-              <a href="/entrar" title="" class="inline-flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-600"> Sair | Entrar </a>
-            </div>
+               <ng-container *ngIf="estaLogado(); else showLogin">
+                <a (click)="deslogar()" href="#" class="inline-flex w-full cursor-pointer items-center gap-2 rounded-md px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-600"> 
+                  Sair 
+                </a>
+              </ng-container>
+
+              <ng-template #showLogin>
+                <a routerLink="/entrar" class="inline-flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-600"> 
+                  Entrar 
+                </a>
+              </ng-template>
           </div>
   
           <button type="button" data-collapse-toggle="ecommerce-navbar-menu-1" aria-controls="ecommerce-navbar-menu-1" aria-expanded="false" class="inline-flex lg:hidden items-center justify-center hover:bg-gray-100 rounded-md dark:hover:bg-gray-700 p-2 text-gray-900 dark:text-white">

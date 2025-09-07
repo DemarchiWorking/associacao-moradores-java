@@ -1,16 +1,17 @@
-import { NgFor } from '@angular/common';
-import { Component, ElementRef, ViewChild } from '@angular/core';
+import { NgClass, NgFor, NgIf } from '@angular/common';
+import { Component, ElementRef, signal, ViewChild } from '@angular/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faArrowLeft, faArrowRight, faSearch } from '@fortawesome/free-solid-svg-icons';
 import { AuthService } from '../../services/autenticacao/auth.service';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Page } from '../bazar/bazar.component';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-contato',
   standalone: true,
-  imports: [ NgFor, FontAwesomeModule],
+  imports: [ NgIf, NgFor, FontAwesomeModule, RouterLink, NgClass, FormsModule],
   templateUrl: './contato.component.html',
   styleUrl: './contato.component.scss'
 })
@@ -23,39 +24,36 @@ export class ContatoComponent {
     private authService: AuthService, 
     private router: Router,
     private http: HttpClient,
+    private route: ActivatedRoute
+
     
   ) {
-    this.carregarPerfis()
   }
-  page = 0;
-  size = 12;
-  totalElementos = 0;
-  totalPaginas = 0;
+ ngOnInit(): void {
+    this.route.queryParams.subscribe(params => {
+      const pagina = params['page'] ? parseInt(params['page'], 10) : 0;
+      const nome = params['nome'] || null; // Lê o novo parâmetro 'nome'
+
+      this.page.set(pagina);
+      this.nomeBusca = nome || ''; // Atualiza a propriedade do input
+      
+      this.carregarPerfis(nome); // Chama o método com o nome como parâmetro
+    });
+  }
+  page = signal(0);
+  size = signal(4);
+  totalPaginas = signal(0);
+  totalElementos = signal(0);
+
+  nomeBusca: string = '';
+
+
+  paginasVisiveis = signal<(number | null)[]>([]);
   faSearch = faSearch;
   faArrowLeft = faArrowLeft;
   faArrowRight = faArrowRight;
   items = ['Item 1', 'Item 2', 'Item 3', 'Item 4', 'Item 5'];
   perfis: any[] = [];
-  
-  categorias: any = [
-    { id: 0, nome: 'Todos' , icone: '../../../assets/icones/icone-todos.png'},
-    { id: 1, nome: 'Roupa', icone: '../../../assets/icones/icone-camiseta.png' },//  croche 
-    { id: 2, nome: 'Brinquedo', icone: '../../../assets/icones/icone-brinquedo.png' },
-    { id: 3, nome: 'Decoração', icone: '../../../assets/icones/icone-decoracao.png'},
-    { id: 4, nome: 'Artesanato', icone: '../../../assets/icones/icone-artesanato.png' },
-    { id: 5, nome:  'Quadro', icone: '../../../assets/icones/icone-quadro.png' },
-    { id: 6, nome: 'Croche', icone: '../../../assets/icones/icone-croche.png'  },
-   ];
-
-  produtos: any = [
-    { nome: 'Caneca Personalizada', foto: 'https://cdn.dooca.store/102992/products/4ksuhbkynhawbusba4piqchgeruzvhqjmwjj_600x800+fill_ffffff.jpg?v=1732310702', valor: 5, descricao: 'Uma caneca simples e personalizada', categoria: 0 },
-    { nome: 'Camiseta Estilosa', valor: 5, descricao: 'Uma camiseta moderna e confortável', categoria: 1 },
-    { nome: 'Brinquedo Educativo', valor: 5, descricao: 'Um brinquedo que ensina e diverte', categoria: 2 },
-    { nome: 'Almofada Decorada', valor: 5, descricao: 'Uma almofada decorativa para sua casa', categoria: 3 },
-    { nome: 'Escultura Artesanal', valor: 5, descricao: 'Uma escultura feita à mão', categoria: 4 },
-    { nome: 'Quadro Artístico', valor: 5, descricao: 'Um quadro para embelezar sua parede', categoria: 5 },
-    { nome: 'Toalha de Croche', valor: 5, descricao: 'Uma toalha de croche feita à mão', categoria: 6 },
-  ];
 
   selectedCategoryId: number | null = null;
 
@@ -70,45 +68,54 @@ export class ContatoComponent {
     this.selectedCategoryId = id;
   }
 
-    carregarPerfis(): void {
-      const token = this.authService.getTokenLocalStorage();
-      if (!token) {
-        console.error('Nenhum token de autenticação encontrado. O usuário precisa fazer login.');
-        this.router.navigate(['/login']);
-        return;
-      }
-  
-      const headers = new HttpHeaders({
-        'Authorization': `Bearer ${token}`
-      });
-  
-      let params = new HttpParams()
-        .set('page', this.page.toString())
-        .set('size', this.size.toString());
-  
-      this.http.get<Page<any>>(`${this.apiUrl}/usuarios/perfis`, { headers: headers, params: params })
-        .subscribe({
-          next: (data) => {
-            this.perfis = data.content;
-            console.log('Produtos recebidos:', data.content); // Log para depuração
-            this.totalElementos = data.totalElements;
-            this.totalPaginas = data.totalPages;
-  
-            //this.gerarPaginasVisiveis();
-          },
-          error: (error) => {
-            console.error('Erro ao carregar produtos:', error);
-          }
-        });
+  carregarPerfis(nome: string): void {
+    const token = this.authService.getTokenLocalStorage();
+    if (!token) {
+      console.error('Nenhum token de autenticação encontrado. O usuário precisa fazer login.');
+      this.router.navigate(['/login']);
+      return;
     }
-  
 
-  getFilteredProducts():any[] {
-    if (this.selectedCategoryId === 0 || this.selectedCategoryId === null) {
-      return this.produtos;
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`
+    });
+
+    let params = new HttpParams()
+      .set('page', this.page().toString()) // Use o valor do signal
+      .set('size', this.size().toString());
+
+    if (nome) {
+      params = params.set('nome', nome);
     }
-    return this.produtos.filter((product: any) => product.categoria === this.selectedCategoryId);
+    this.http.get<Page<any>>(`${this.apiUrl}/usuarios/perfis`, { headers: headers, params: params })
+      .subscribe({
+        next: (data) => {
+          this.perfis = data.content;
+          console.log('Perfis recebidos:', data.content);
+          this.totalElementos.set(data.totalElements);
+          this.totalPaginas.set(data.totalPages);
+          this.gerarPaginasVisiveis();
+        },
+        error: (error) => {
+          console.error('Erro ao carregar perfis:', error);
+        }
+      });
   }
+onBuscar(): void {
+  this.page.set(0); 
+  
+  let queryParams: any = { page: 0 };
+  
+    queryParams.nome = this.nomeBusca;
+  
+  this.router.navigate([], {
+    relativeTo: this.route,
+    queryParams: queryParams,
+    queryParamsHandling: 'merge', // 'merge' vai manter outros params
+  });
+}
+
+
   onSearch(): void {
     const query = this.query.toLowerCase();
     if (query) {
@@ -125,5 +132,63 @@ export class ContatoComponent {
   scrollLeft() {
     this.productList?.nativeElement.scrollBy({ left: -200, behavior: 'smooth' });
   }
+  private updateUrl(page: number): void {
+  this.router.navigate([], {
+    relativeTo: this.route,
+    queryParams: { page },
+    queryParamsHandling: 'merge',
+  });
+}
+
+irParaPagina(numeroPagina: number | null): void {
+  if (numeroPagina !== null && numeroPagina !== this.page()) {
+    this.page.set(numeroPagina);
+    this.updateUrl(numeroPagina);
+  }
+}
+
+proximaPagina(): void {
+  if (this.page() < this.totalPaginas() - 1) {
+    const nextPage = this.page() + 1;
+    this.page.set(nextPage);
+    this.updateUrl(nextPage);
+  }
+}
+
+paginaAnterior(): void {
+  if (this.page() > 0) {
+    const prevPage = this.page() - 1;
+    this.page.set(prevPage);
+    this.updateUrl(prevPage);
+  }
+}
+gerarPaginasVisiveis(): void {
+  const paginasParaExibir: Set<number> = new Set();
+  const paginasTotais = this.totalPaginas();
+  const paginaAtual = this.page();
+
+  if (paginasTotais > 0) paginasParaExibir.add(0);
+  for (let i = -2; i <= 2; i++) {
+    const pagina = paginaAtual + i;
+    if (pagina >= 0 && pagina < paginasTotais) {
+      paginasParaExibir.add(pagina);
+    }
+  }
+  if (paginasTotais > 1) paginasParaExibir.add(paginasTotais - 1);
+  
+  const paginasOrdenadas = Array.from(paginasParaExibir).sort((a, b) => a - b);
+  const paginasComReticencias: (number | null)[] = [];
+  let ultimaPaginaAdicionada = -1;
+
+  paginasOrdenadas.forEach(pagina => {
+    if (pagina > ultimaPaginaAdicionada + 1) {
+      paginasComReticencias.push(null);
+    }
+    paginasComReticencias.push(pagina);
+    ultimaPaginaAdicionada = pagina;
+  });
+
+  this.paginasVisiveis.set(paginasComReticencias);
+}
 }
 
