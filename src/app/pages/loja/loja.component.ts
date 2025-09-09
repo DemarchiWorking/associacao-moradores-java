@@ -1,26 +1,19 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, ViewChildren, QueryList, ElementRef, signal, computed } from '@angular/core';
-import { ActivatedRoute, Route, Router } from '@angular/router';
+import { ActivatedRoute, Route, Router, RouterLink } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ProdutoService } from '../../services/produto/produto.service';
 import { UsuariosService } from '../../services/usuario/usuarios.service';
 import { Usuario } from '../pedidos/pedidos.component';
+import { Produto } from '../detalhes-produto/detalhes-produto.component';
 
 // Interface do Produto, conforme fornecido
-export interface Produto {
-  id: string;
-  nome: string;
-  categoria: string;
-  descricao: string;
-  preco: number;
-  imagem: string;
-  ehAutor: boolean;
-}
+
 
 @Component({
   selector: 'app-loja',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterLink],
   templateUrl: './loja.component.html',
   styleUrl: './loja.component.scss'
 })

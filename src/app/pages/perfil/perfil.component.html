@@ -5,7 +5,15 @@
         <img src="../../../assets/publico.png" alt="Capa do perfil do usuário" loading="lazy" class="absolute inset-0 w-full h-full object-cover rounded-t-2xl">
         <div class="absolute left-10 -bottom-28">
           <div class="w-40 h-40 md:w-48 md:h-48 bg-red-500 rounded-full border-4 border-white shadow-lg flex items-center justify-center">
-            <img class="rounded-full w-40 h-40 md:w-48 md:h-48 object-cover" [src]="usuarioLogado?.foto || 'https://www.llt.at/wp-content/uploads/2021/11/blank-profile-picture-g77b5d6651-1280-705x705.png'" loading="lazy" alt="Foto de Perfil do usuário" >
+            <img
+              class="rounded-full w-40 h-40 md:w-48 md:h-48 object-cover"
+              ngSrc="{{ usuarioLogado?.foto ?? 'https://www.llt.at/wp-content/uploads/2021/11/blank-profile-picture-g77b5d6651-1280-705x705.png' }}"
+              loading="lazy"
+              alt="Foto de Perfil do usuário"
+              width="705"
+              height="705"
+              loading="lazy"
+            >
           </div>
         </div>
       </div>
@@ -84,56 +92,56 @@
             Editar
           </button>
         </div>
-          
-  <form *ngIf="editandoPerfil" [formGroup]="perfilForm" (ngSubmit)="salvarPerfil()">
-    <div class="flex flex-col md:flex-row md:space-x-4">
-      <!-- Lado Esquerdo -->
-      <div class="w-full md:w-1/2">
-        <div class="mb-4">
-          <label for="nome" class="block text-sm font-medium">Nome</label>
-          <input id="nome" formControlName="nome" type="text" placeholder="Nome"
-            class="border p-2 w-full rounded-md" />
-        </div>
-        <div class="mb-4">
-          <label for="email" class="block text-sm font-medium">Email</label>
-          <input id="email" formControlName="email" type="text" placeholder="Email"
-            class="border p-2 w-full rounded-md" readonly/>
-        </div>
-        <div class="mb-4">
-          <label for="foto" class="block text-sm font-medium">Foto</label>
-          <input id="foto" formControlName="foto" type="text" placeholder="URL da foto"
-            class="border p-2 w-full rounded-md" />
-        </div>
-      </div>
 
-      <!-- Lado Direito -->
-      <div class="w-full md:w-1/2">
-        <div class="mb-4">
-          <label for="sobrenome" class="block text-sm font-medium">Sobrenome</label>
-          <input id="sobrenome" formControlName="sobrenome" type="text" placeholder="Sobrenome"
-            class="border p-2 w-full rounded-md" />
-        </div>
-        <div class="mb-4">
-          <label for="telefone" class="block text-sm font-medium">Telefone</label>
-          <input id="telefone" formControlName="telefone" type="text" placeholder="Telefone"
-            class="border p-2 w-full rounded-md" />
-        </div>
-        <div class="mb-4">
-          <label for="cpf" class="block text-sm font-medium">Cpf</label>
-          <input id="cpf" formControlName="cpf" type="text" placeholder="Cpf"
-            class="border p-2 w-full rounded-md" />
-        </div>
-        
-      </div>
+        <form *ngIf="editandoPerfil" [formGroup]="perfilForm" (ngSubmit)="salvarPerfil()">
+          <div class="flex flex-col md:flex-row md:space-x-4">
+            <!-- Lado Esquerdo -->
+            <div class="w-full md:w-1/2">
+              <div class="mb-4">
+                <label for="nome" class="block text-sm font-medium">Nome</label>
+                <input id="nome" formControlName="nome" type="text" placeholder="Nome"
+                  class="border p-2 w-full rounded-md" />
+              </div>
+              <div class="mb-4">
+                <label for="email" class="block text-sm font-medium">Email</label>
+                <input id="email" formControlName="email" type="text" placeholder="Email"
+                  class="border p-2 w-full rounded-md" readonly/>
+              </div>
+              <div class="mb-4">
+                <label for="foto" class="block text-sm font-medium">Foto</label>
+                <input id="foto" formControlName="foto" type="text" placeholder="URL da foto"
+                  class="border p-2 w-full rounded-md" />
+              </div>
+            </div>
 
-      
-    </div>
+            <!-- Lado Direito -->
+            <div class="w-full md:w-1/2">
+              <div class="mb-4">
+                <label for="sobrenome" class="block text-sm font-medium">Sobrenome</label>
+                <input id="sobrenome" formControlName="sobrenome" type="text" placeholder="Sobrenome"
+                  class="border p-2 w-full rounded-md" />
+              </div>
+              <div class="mb-4">
+                <label for="telefone" class="block text-sm font-medium">Telefone</label>
+                <input id="telefone" formControlName="telefone" type="text" placeholder="Telefone"
+                  class="border p-2 w-full rounded-md" />
+              </div>
+              <div class="mb-4">
+                <label for="cpf" class="block text-sm font-medium">Cpf</label>
+                <input id="cpf" formControlName="cpf" type="text" placeholder="Cpf"
+                  class="border p-2 w-full rounded-md" />
+              </div>
+              
+            </div>
 
-  <div class="mt-6 flex gap-2 justify-end">
-    <button type="button" (click)="cancelarEdicao()" class="bg-gray-300 px-4 py-2 rounded-md">Cancelar</button>
-    <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-md">Salvar</button>
-  </div>
-</form>
+            
+          </div>
+
+        <div class="mt-6 flex gap-2 justify-end">
+          <button type="button" (click)="cancelarEdicao()" class="bg-gray-300 px-4 py-2 rounded-md">Cancelar</button>
+          <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-md">Salvar</button>
+        </div>
+        </form>
 
         <div *ngIf="!editandoPerfil" class="grid grid-cols-1 gap-y-4">
               <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8">
@@ -197,7 +205,6 @@
               <h3 class="text-lg font-semibold text-gray-700">{{ produtos.length }} Produtos</h3>
               <button class="px-2 py-1 bg-gray-200 text-gray-600 rounded">⋮</button>
             </div>
-             
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               <a *ngFor="let produto of produtos" [routerLink]="['/detalhes-produto', produto.id]" class="block bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300">
                 <img [src]="produto.imagem" [alt]="'Imagem do produto ' + produto.nome" class="w-full h-32 object-cover rounded mb-4">

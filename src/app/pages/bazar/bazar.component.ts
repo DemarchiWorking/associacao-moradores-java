@@ -1,4 +1,4 @@
-import { CommonModule, NgClass, NgFor, NgIf } from '@angular/common';
+import { CommonModule, NgClass, NgFor, NgIf, NgOptimizedImage } from '@angular/common';
 import { Component, ViewChild, ElementRef, OnInit } from '@angular/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faArrowLeft, faArrowRight, faSearch } from '@fortawesome/free-solid-svg-icons';
@@ -7,11 +7,13 @@ import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { AuthService } from '../../services/autenticacao/auth.service';
 import { Router } from '@angular/router';
+import { Categoria } from '../detalhes-produto/detalhes-produto.component';
 
 export interface Produto {
   id?: string;
   nome: string;
   descricao: string;
+  categoria: Categoria;
   preco: number;
   quantidade: number;
   data_criacao: string;
@@ -27,10 +29,6 @@ export interface Page<T> {
   number: number;
 }
 
-export interface Categoria {
-  id: string;
-  nome: string;
-}
 
 export interface Item {
   label: string;
@@ -40,7 +38,7 @@ export interface Item {
 @Component({
   selector: 'app-bazar',
   standalone: true,
-  imports: [NgFor, NgClass, NgIf, FontAwesomeModule, CommonModule],
+  imports: [NgFor, NgClass, NgIf, FontAwesomeModule, CommonModule, NgOptimizedImage],
   templateUrl: './bazar.component.html',
   styleUrl: './bazar.component.scss'
 })
@@ -60,7 +58,7 @@ export class BazarComponent implements OnInit {
   paginasVisiveis: (number | null)[] = []; // Array que armazena os números das páginas a serem exibidos
 
   private apiUrl = 'http://localhost:8081/api';
-  produtos: any[] = [];
+  produtos: Produto[] = [];
   selectedCategoryId: String | null = null;
   selectedCategoriaNome: String | null = null;
   carrinho: any[] = [];
@@ -269,10 +267,10 @@ carregarProdutosFiltroCategorias(id: string): void {
 
 // Método getFilteredProducts
 getFilteredProducts(): any[] {
-  return this.produtos.filter(product => {
+  return this.produtos.filter(produto => {
     // Tratar a categoria "Todos" (id === '0') e alinhar com a propriedade categoriaId
-    const matchesCategory = this.selectedCategoryId === '0' || !this.selectedCategoryId || product.categoriaId === this.selectedCategoryId;
-    const matchesSearchText = this.searchText === '' || product.nome.toLowerCase().includes(this.searchText.toLowerCase());
+    const matchesCategory = this.selectedCategoryId === '0' || !this.selectedCategoryId || produto?.categoria.id === this.selectedCategoryId;
+    const matchesSearchText = this.searchText === '' || produto.nome.toLowerCase().includes(this.searchText.toLowerCase());
     return matchesCategory && matchesSearchText;
   });
 }

@@ -1,4 +1,4 @@
-import { NgClass, NgFor, NgIf, CommonModule } from '@angular/common';
+import { NgClass, NgFor, NgIf, CommonModule, NgOptimizedImage } from '@angular/common';
 import { Component, OnInit, signal } from '@angular/core';
 import { AuthService } from '../../services/autenticacao/auth.service';
 import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
@@ -81,7 +81,7 @@ interface Produto {
 @Component({
   selector: 'app-perfil',
   standalone: true,
-  imports: [NgClass, NgIf, NgFor, RouterLink, ReactiveFormsModule, CommonModule, FormsModule],
+  imports: [NgClass, NgIf, NgFor, RouterLink, ReactiveFormsModule, CommonModule, FormsModule, NgOptimizedImage],
   templateUrl: './perfil.component.html',
   styleUrl: './perfil.component.scss'
 })

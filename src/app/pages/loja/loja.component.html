@@ -25,9 +25,14 @@
               @for (produto of produtos(); track $index) {
                 <div class="flex-none w-64 p-4 rounded-lg bg-white transform hover:scale-105 transition-transform duration-300 ease-in-out cursor-pointer shadow-md"
                      [style.scroll-snap-align]="'start'">
-                  <div class="relative h-48 mb-4 overflow-hidden rounded-md">
-                    <img [src]="produto.imagem" [width]="192" [height]="192" [alt]="produto.nome" class="w-full h-full object-contain">
-                  </div>
+                    <a [routerLink]="['/detalhes-produto', produto.id]" class="block bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300">
+                      
+                        <div class="relative h-48 mb-4 overflow-hidden rounded-md">
+                        <!-- <a href="detalhes-produto/{{produto.id}}" class="flex h-full items-center justify-center">-->
+                          <img [src]="produto.imagem" [width]="192" [height]="192" [alt]="produto.nome" class="w-full h-full object-contain">
+                        </div>
+                      </a>
+
                   <div class="flex flex-col">
                     <h3 class="text-base text-gray-700 h-10 overflow-hidden">{{ produto.nome }}</h3>
                     <p class="text-xl font-semibold mt-2">R${{ produto.preco }}</p>
@@ -68,9 +73,11 @@
                 @for (produto of metade1(); track $index) {
                   <div class="flex-none w-64 p-4 rounded-lg bg-white transform hover:scale-105 transition-transform duration-300 ease-in-out cursor-pointer shadow-md"
                        [style.scroll-snap-align]="'start'">
-                    <div class="relative h-48 mb-4 overflow-hidden rounded-md">
-                      <img [src]="produto.imagem" [width]="192" [height]="192" [alt]="produto.nome" class="w-full h-full object-contain">
-                    </div>
+                        <a [routerLink]="['/detalhes-produto', produto.id]" class="block bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300">
+                          <div class="relative h-48 mb-4 overflow-hidden rounded-md">
+                            <img [src]="produto.imagem" [width]="192" [height]="192" [alt]="produto.nome" class="w-full h-full object-contain">
+                          </div>
+                        </a>
                     <div class="flex flex-col">
                       <h3 class="text-base text-gray-700 h-10 overflow-hidden">{{ produto.nome }}</h3>
                       <p class="text-xl font-semibold mt-2">R${{ produto.preco }}</p>
@@ -90,9 +97,11 @@
                 @for (produto of metade2(); track $index) {
                   <div class="flex-none w-64 p-4 rounded-lg bg-white transform hover:scale-105 transition-transform duration-300 ease-in-out cursor-pointer shadow-md"
                        [style.scroll-snap-align]="'start'">
-                    <div class="relative h-48 mb-4 overflow-hidden rounded-md">
-                      <img [src]="produto.imagem" [width]="192" [height]="192" [alt]="produto.nome" class="w-full h-full object-contain">
-                    </div>
+                    <a [routerLink]="['/detalhes-produto', produto.id]" class="block bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300">
+                      <div class="relative h-48 mb-4 overflow-hidden rounded-md">
+                        <img [src]="produto.imagem" [width]="192" [height]="192" [alt]="produto.nome" class="w-full h-full object-contain">
+                      </div>
+                    </a>
                     <div class="flex flex-col">
                       <h3 class="text-base text-gray-700 h-10 overflow-hidden">{{ produto.nome }}</h3>
                       <p class="text-xl font-semibold mt-2">R${{ produto.preco }}</p>

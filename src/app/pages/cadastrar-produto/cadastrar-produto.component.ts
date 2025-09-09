@@ -13,7 +13,7 @@ import { faCircleMinus, faCirclePlus } from '@fortawesome/free-solid-svg-icons';
     ReactiveFormsModule,
     NgIf,
     NgFor,
-    FontAwesomeModule,  // <--- Adicione aqui
+    FontAwesomeModule,  
   ],
   templateUrl: './cadastrar-produto.component.html',
   styleUrl: './cadastrar-produto.component.scss'
@@ -36,7 +36,7 @@ export class CadastrarProdutoComponent implements OnInit {
     // Inicialização do Formulário de Produto
     this.produtoForm = this.fb.group({
       nome: ['', Validators.required],
-      categoria: ['', Validators.required],
+      categoria: ['', Validators.required], // CORRIGIR ABAIXO OU ESSE
       categoriaId: [''], // Adicione este campo para armazenar o ID da categoria
       quantidade: [1, [Validators.required, Validators.min(1)]],
       preco: [null, [Validators.required, Validators.min(0.01)]],
@@ -163,7 +163,7 @@ export class CadastrarProdutoComponent implements OnInit {
       novoProduto.categoriaId = novoProduto.categoria.id.toString();
       novoProduto.categoria = novoProduto.categoria.nome.toString();
       console.log('Categoria ID do Produto:', novoProduto.categoria_id);
-      alert(novoProduto.categoria_id);
+     ////////////// alert(novoProduto.categoria_id);
       console.log('Dados do Produto para enviar:', novoProduto);
 
       this.http.post<any>(this.API_PRODUTOS, novoProduto, { headers: headers })

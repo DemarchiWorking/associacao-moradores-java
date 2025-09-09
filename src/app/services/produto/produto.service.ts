@@ -20,14 +20,16 @@ export class ProdutoService {
     });
 
     // 2. Passe os headers como um objeto de opções para o método get
-    return this.http.get<any>(`${this.apiUrl}/${id}`, { headers: headers }).pipe(
+    return this.http.get<Produto>(`${this.apiUrl}/${id}`, { headers: headers }).pipe(
       map((response) => ({
         id: response.id.toString(),
-        nome: response.nome || response.name,
-        descricao: response.descricao || response.description,
-        preco: Number(response.preco || response.price),
-        imagem: response.imagem || response.image,
+        nome: response.nome,
+        descricao: response.descricao,
+        preco: Number(response.preco),
+        imagem: response.imagem,
+        autor: response.autor,
         ehAutor: response.ehAutor,
+        categoria: response.categoria
       })),
       catchError(this.handleError)
     );

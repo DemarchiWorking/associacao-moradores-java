@@ -40,27 +40,24 @@ export class EntrarComponent implements OnInit {
     });
   }
 
-  onSubmit(): void {
+  entrar(): void {
     if (this.loginForm.valid) {
       this.errorMessage = null;
-      const { email, senha } = this.loginForm.value;
-      const loginPayload = { email, senha };
+      const loginPayload = this.loginForm.value; //const { email, senha } =this.loginForm.value;
 
-      this.http.post<AuthResponse>('http://localhost:8081/api/autenticacao/login', loginPayload)
-        .subscribe({
-          next: (response) => {
-            console.log('Login bem-sucedido!', response);
-            this.authService.saveTokenLocalStorage(response.token);
-            this.router.navigate(['/bazar']);
-          },
+      this.authService.login(loginPayload).subscribe({
+          next: () => {
+              console.log('Login bem-sucedido, navegando...');
+              this.router.navigate(['/bazar']);
+            },
           error: (error) => {
-            console.error('Erro no login:', error);
-            this.errorMessage = 'Credenciais inválidas. Por favor, tente novamente.';
-          }
-        });
-    } else {
-      this.errorMessage = 'Por favor, preencha o formulário corretamente.';
-    }
+              console.error('Erro no login:', error);
+              this.errorMessage = 'Credenciais inválidas. Por favor, tente novamente.';
+            }
+          });
+        } else {
+          this.errorMessage = 'Por favor, preencha o formulário corretamente.';
+        }
   }
 
 }

@@ -41,7 +41,7 @@ export class PainelComponent {   @ViewChildren('menuButton') menuButtons!: Query
       buttons: [
         { name: 'Ver itens de bazar', link: '/bazar' },
         { name: 'Vender um item', link: '/cadastrar-produto' },
-        { name: 'Gerenciar minhas vendas', link: '/contato' },
+        { name: 'Gerenciar minhas vendas', link: '/gerenciar-vendas' },
       ]
     },
     { 

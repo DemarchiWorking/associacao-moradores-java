@@ -46,151 +46,174 @@
         </div>
   
         <div class="flex items-center lg:space-x-2">
-  
-          <button id="myCartDropdownButton1" data-dropdown-toggle="myCartDropdown1" type="button" class="inline-flex items-center rounded-lg justify-center p-2 hover:bg-gray-100 dark:hover:bg-gray-700 text-sm font-medium leading-none text-gray-900 dark:text-white">
-            <span class="sr-only">
-              Cart
-            </span>
-            <svg class="w-5 h-5 lg:me-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 4h1.5L9 16m0 0h8m-8 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm8 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm-8.5-3h9.25L19 7H7.312"/>
-            </svg> 
-            <span class="hidden sm:flex"> Carrinho </span>
-            <svg class="hidden sm:flex w-4 h-4 text-gray-900 dark:text-white ms-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 9-7 7-7-7"/>
-            </svg>              
-          </button>
-
-            <div id="myCartDropdown1" class="hidden z-10 mx-auto max-w-sm space-y-4 overflow-hidden rounded-lg bg-white p-4 antialiased shadow-lg dark:bg-gray-800">
-                  <div  class=""
-                      aria-modal="true"
-                      role="dialog"
-                      tabindex="-1"
-                    >
-  <button class="absolute end-4 top-4 text-gray-600 transition hover:scale-110">
-  
-  </button>
-
-  <div class="mt-4 space-y-6">
-    <ul class="space-y-4">
-      <div *ngFor="let item of carrinho" >
-        <li class="flex items-center gap-4">
-          <img
-            [src]="item.imagem"
-            alt=""
-            class="size-16 rounded-sm object-cover"
-          />
-                   
-
-          <div>
-            
-            <h3 class="text-sm text-gray-900"> {{ item.nome }}</h3>
-
-            <dl class="mt-0.5 space-y-px text-[10px] text-gray-600">
+           <ng-container *ngIf="!estaLogado(); else showCarrinho">
+            </ng-container>
+            <ng-template #showCarrinho>
               <div>
-                <dt class="inline">Tamanho :</dt>
-                <dd class="inline">G</dd>
-              </div>
-              <!--
-              <div>
-                <dt class="inline">Color:</dt>
-                <dd class="inline">White</dd>
-              </div>-->
-            </dl>
-          </div>
+                <button id="myCartDropdownButton1" data-dropdown-toggle="myCartDropdown1" type="button" class="inline-flex items-center rounded-lg justify-center p-2 hover:bg-gray-100 dark:hover:bg-gray-700 text-sm font-medium leading-none text-gray-900 dark:text-white">
+                  <span class="sr-only">
+                    Carrinho
+                  </span>
+                  <svg class="w-5 h-5 lg:me-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 4h1.5L9 16m0 0h8m-8 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm8 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm-8.5-3h9.25L19 7H7.312"/>
+                  </svg> 
+                  <span class="hidden sm:flex"> Carrinho </span>
+                  <svg class="hidden sm:flex w-4 h-4 text-gray-900 dark:text-white ms-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 9-7 7-7-7"/>
+                  </svg>              
+                </button>
 
-          <div class="flex flex-1 items-center justify-end gap-2">
-            <form>
-              <label for="Line1Qty" class="sr-only"> Quantity </label>
+                <div id="myCartDropdown1" class="hidden z-10 mx-auto max-w-sm space-y-4 overflow-hidden rounded-lg bg-white p-4 antialiased shadow-lg dark:bg-gray-800">
+                  <div  class="" aria-modal="true" role="dialog" tabindex="-1">                    
+                                           
+                          <button class="absolute end-4 top-4 text-gray-600 transition hover:scale-110">
+                            
+                          </button>
 
- 
-            </form>
-<div class="flex items-center space-x-2">
-                        <button (click)="atualizarQuantidade(item.id, item.quantidade - 1)" class="text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-white">
-                          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                            <path fill-rule="evenodd" d="M5 10a1 1 0 011-1h8a1 1 0 110 2H6a1 1 0 01-1-1z" clip-rule="evenodd" />
-                          </svg>
-                        </button>
-                                 <input
-                                      type="number"
-                                      [(ngModel)]="item.quantidade"
-                                      id="Line1Qty"
-                                      class="h-8 w-12 rounded-sm border-gray-200 bg-gray-50 p-0 text-center text-xs text-gray-600 [-moz-appearance:_textfield] focus:outline-hidden [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none"
+                      <div class="mt-4 space-y-6">
+                        <ul class="space-y-4">
+                          <div *ngFor="let item of carrinho" >
+                            <li class="flex items-center gap-4">
+                              <img
+                                [src]="item.imagem"
+                                alt=""
+                                class="size-16 rounded-sm object-cover"
+                              />
+                                      
+
+                              <div>
+                                
+                                <h3 class="text-sm text-gray-900"> {{ item.nome }}</h3>
+
+                                <dl class="mt-0.5 space-y-px text-[10px] text-gray-600">
+                                  <div>
+                                    <dt class="inline">Tamanho :</dt>
+                                    <dd class="inline">G</dd>
+                                  </div>
+                                  <!--
+                                  <div>
+                                    <dt class="inline">Color:</dt>
+                                    <dd class="inline">White</dd>
+                                  </div>-->
+                                </dl>
+                              </div>
+
+                              <div class="flex flex-1 items-center justify-end gap-2">
+                                <form>
+                                  <label for="Line1Qty" class="sr-only"> Quantity </label>
+
+                    
+                                </form>
+                    <div class="flex items-center space-x-2">
+                                            <button (click)="atualizarQuantidade(item.id, item.quantidade - 1)" class="text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-white">
+                                              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                                <path fill-rule="evenodd" d="M5 10a1 1 0 011-1h8a1 1 0 110 2H6a1 1 0 01-1-1z" clip-rule="evenodd" />
+                                              </svg>
+                                            </button>
+                                                    <input
+                                                          type="number"
+                                                          [(ngModel)]="item.quantidade"
+                                                          id="Line1Qty"
+                                                          class="h-8 w-12 rounded-sm border-gray-200 bg-gray-50 p-0 text-center text-xs text-gray-600 [-moz-appearance:_textfield] focus:outline-hidden [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none"
+                                                        />
+                                            <button (click)="atualizarQuantidade(item.id, item.quantidade + 1)" class="text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-white">
+                                              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                                <path d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" />
+                                              </svg>
+                                            </button>
+                                          </div>
+                                <button class="text-gray-600 transition hover:text-red-600">
+                                  <span  class="sr-only">Remove item</span>
+                                  <div (click)="removerDoCarrinho(item.id)">
+                                  <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    stroke-width="1.5"
+                                    stroke="currentColor"
+                                    class="size-4"
+                                  >
+                                    <path
+                                      stroke-linecap="round"
+                                      stroke-linejoin="round"
+                                      d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"
                                     />
-                        <button (click)="atualizarQuantidade(item.id, item.quantidade + 1)" class="text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-white">
-                          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                            <path d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" />
-                          </svg>
-                        </button>
+                                  </svg></div>
+                                </button>
+                              </div>
+                            </li>
+                          </div>
+
+                        </ul>
+
+                        <div class="space-y-4 text-center">
+                          <a
+                            href="/carrinho"
+                            class="block rounded-sm border border-gray-600 px-5 py-3 text-sm text-gray-600 transition hover:ring-1 hover:ring-gray-400 hover:bg-blue-600 hover:text-white"
+                          >
+                            Carrinho
+                          </a>
+                          <!--
+                          <a
+                            href="#"
+                            class="block rounded-sm bg-gray-700 px-5 py-3 text-sm text-gray-100 transition hover:bg-gray-600"
+                          >
+                            Comprar
+                          </a>-->
+                          <!--
+                          <a
+                            href="#"
+                            class="inline-block text-sm text-gray-500 underline underline-offset-4 transition hover:text-gray-600"
+                          >
+                            Continue shopping
+                          </a>-->
+                        </div>
                       </div>
-            <button class="text-gray-600 transition hover:text-red-600">
-              <span  class="sr-only">Remove item</span>
-              <div (click)="removerDoCarrinho(item.id)">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke-width="1.5"
-                stroke="currentColor"
-                class="size-4"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"
-                />
-              </svg></div>
-            </button>
-          </div>
-        </li>
-      </div>
+                    </div>
+                  </div>
+              </div>
+          </ng-template>
+             <ng-container *ngIf="!estaLogado(); else showEntrar">
+                   
+              <a routerLink="/entrar" routerLinkActive="active">
+                  <button type="button" class="
+                    group flex items-center justify-center 
+                    
+                    bg-blue-700 text-white border-2 border-blue-900
+                    hover:bg-white hover:text-blue-700 hover:border-blue-700
+                    
+                    font-medium rounded-lg text-sm px-5 py-2.5 text-center
+                    transition-all duration-300 ease-in-out
+                    focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800
+                  ">
+                    <svg class="
+                      w-4 h-4 mr-2 
+                      transform transition-transform duration-300 
+                      group-hover:translate-x-1
+                    "
+                    xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                    </svg>
+                    
+                    Entrar
+                  </button>
+              </a>
+              </ng-container>
+                <ng-template #showEntrar>
+                 <a routerLink="/login" routerLinkActive="active">
 
-    </ul>
-
-    <div class="space-y-4 text-center">
-      <a
-        href="/carrinho"
-        class="block rounded-sm border border-gray-600 px-5 py-3 text-sm text-gray-600 transition hover:ring-1 hover:ring-gray-400 hover:bg-blue-600 hover:text-white"
-      >
-        Carrinho
-      </a>
-      <!--
-      <a
-        href="#"
-        class="block rounded-sm bg-gray-700 px-5 py-3 text-sm text-gray-100 transition hover:bg-gray-600"
-      >
-        Comprar
-      </a>-->
-      <!--
-      <a
-        href="#"
-        class="inline-block text-sm text-gray-500 underline underline-offset-4 transition hover:text-gray-600"
-      >
-        Continue shopping
-      </a>-->
-    </div>
-  </div>
-</div>
-            </div>
-          
-          <a routerLink="/login" routerLinkActive="active" >
-            <button id="userDropdownButton1" data-dropdown-toggle="userDropdown1" type="button" class="inline-flex items-center rounded-lg justify-center p-2 hover:bg-gray-100 dark:hover:bg-gray-700 text-sm font-medium leading-none text-gray-900 dark:text-white">
-                <svg class="w-5 h-5 me-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                <path stroke="currentColor" stroke-width="2" d="M7 17v1a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-1a3 3 0 0 0-3-3h-4a3 3 0 0 0-3 3Zm8-9a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/>
-                </svg>      
-
-                <ng-container *ngIf="estaLogado(); else showEntrar">
-                  Menu 
-                </ng-container>
-
-              <ng-template #showEntrar>
-                  Entrar 
-              </ng-template>
-                
-                <svg class="w-4 h-4 text-gray-900 dark:text-white ms-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 9-7 7-7-7"/>
-                </svg> 
-            </button>
-          </a>
+                    <button id="userDropdownButton1" data-dropdown-toggle="userDropdown1" type="button" class="inline-flex items-center rounded-lg justify-center p-2 hover:bg-gray-100 dark:hover:bg-gray-700 text-sm font-medium leading-none text-gray-900 dark:text-white">
+                        <svg class="w-5 h-5 me-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                        <path stroke="currentColor" stroke-width="2" d="M7 17v1a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-1a3 3 0 0 0-3-3h-4a3 3 0 0 0-3 3Zm8-9a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/>
+                        </svg>      
+                          Menu 
+                        
+                        <svg class="w-4 h-4 text-gray-900 dark:text-white ms-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 9-7 7-7-7"/>
+                        </svg> 
+                    </button>
+                </a>
+                </ng-template>
           <div id="userDropdown1" class="hidden z-10 w-56 divide-y divide-gray-100 overflow-hidden overflow-y-auto rounded-lg bg-white antialiased shadow dark:divide-gray-600 dark:bg-gray-700">
             <ul class="p-2 text-start text-sm font-medium text-gray-900 dark:text-white">
               <li><a href="/perfil" title="" class="inline-flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-600"> Perfil </a></li>
@@ -203,6 +226,7 @@
             </ul>
         
                <ng-container *ngIf="estaLogado(); else showLogin">
+                
                 <a (click)="deslogar()" href="#" class="inline-flex w-full cursor-pointer items-center gap-2 rounded-md px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-600"> 
                   Sair 
                 </a>
@@ -229,22 +253,19 @@
       <div id="ecommerce-navbar-menu-1" class="bg-gray-50 dark:bg-gray-700 dark:border-gray-600 border border-gray-200 rounded-lg py-3 hidden px-4 mt-4">
         <ul class="text-gray-900 dark:text-white text-sm font-medium dark:text-white space-y-3">
           <li>
-            <a href="#" class="hover:text-primary-700 dark:hover:text-primary-500">Home</a>
+            <a href="/inicio" class="hover:text-primary-700 dark:hover:text-primary-500">Inicio</a>
           </li>
           <li>
-            <a href="#" class="hover:text-primary-700 dark:hover:text-primary-500">Best Sellers</a>
+            <a href="/quem-somos" class="hover:text-primary-700 dark:hover:text-primary-500">Quem Somos</a>
           </li>
           <li>
-            <a href="#" class="hover:text-primary-700 dark:hover:text-primary-500">Gift Ideas</a>
+            <a href="/painel" class="hover:text-primary-700 dark:hover:text-primary-500">Painel</a>
           </li>
           <li>
-            <a href="#" class="hover:text-primary-700 dark:hover:text-primary-500">Games</a>
+            <a href="/bazar" class="hover:text-primary-700 dark:hover:text-primary-500">Bazar</a>
           </li>
           <li>
-            <a href="#" class="hover:text-primary-700 dark:hover:text-primary-500">Electronics</a>
-          </li>
-          <li>
-            <a href="#" class="hover:text-primary-700 dark:hover:text-primary-500">Home & Garden</a>
+            <a href="/vitrine" class="hover:text-primary-700 dark:hover:text-primary-500">Vitrine</a>
           </li>
         </ul>
       </div>

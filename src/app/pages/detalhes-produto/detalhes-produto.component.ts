@@ -15,11 +15,30 @@ import { EnderecoService } from '../../services/endereco/endereco.service';
 export interface Produto {
   id: string;
   nome: string;
-  categoria: string;
+  categoria: Categoria;
   descricao: string;
   preco: number;
+  autor: Autor;
   imagem: string;
   ehAutor: boolean;
+}
+export interface Categoria {
+  descricao: string | null;
+  icone: string;
+  id: string;
+  nome: string;
+}
+export interface Autor {
+  cnpj: string | null;
+  cpf: string;
+  email: string;
+  foto: string;
+  id: string;
+  loja: boolean;
+  nome: string;
+  pontos: number;
+  senha: string;
+  telefone: string;
 }
 
 @Component({

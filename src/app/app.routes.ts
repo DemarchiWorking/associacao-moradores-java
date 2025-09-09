@@ -19,6 +19,7 @@ import { PerfilUsuarioComponent } from './pages/perfil-usuario/perfil-usuario.co
 import { PainelComponent } from './pages/painel/painel.component';
 
 import { authGuard } from './guard/auth.guard';
+import { GerenciarVendasComponent } from './pages/gerenciar-vendas/gerenciar-vendas.component';
 
 
 export const routes: Routes = [
@@ -34,6 +35,13 @@ export const routes: Routes = [
         path: 'painel',
         component: PainelComponent,
         canActivate: [authGuard],
+        
+    },
+    {
+        path: 'gerenciar-vendas',
+        component: GerenciarVendasComponent,
+        canActivate: [authGuard],
+        
     },
     {
         path: 'perfil',

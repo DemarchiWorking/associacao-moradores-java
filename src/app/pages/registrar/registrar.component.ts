@@ -45,6 +45,27 @@ export class RegistrarComponent {
     return senha && repetirSenha && senha === repetirSenha ? null : { mismatch: true };
   }
 
+  registrar(): void {
+  if (this.loginForm.valid) {
+    this.errorMessage = null;
+    const { nome, email, telefone, senha } = this.loginForm.value;
+    
+    this.authService.register({ nome, email, telefone, senha }).subscribe({
+      next: () => {
+        console.log('Registro bem-sucedido, navegando...');
+        this.router.navigate(['/bazar']);
+      },
+      error: (error) => {
+        console.error('Erro no registro:', error);
+        this.errorMessage = error.error?.message || 'Erro ao registrar. Verifique os dados e tente novamente.';
+      }
+    });
+  } else {
+    this.errorMessage = 'Por favor, preencha o formulário corretamente.';
+    this.loginForm.markAllAsTouched(); 
+  }
+}
+  /*
   onSubmit(): void {
     if (this.loginForm.valid) {
       this.errorMessage = null;
@@ -69,5 +90,5 @@ export class RegistrarComponent {
       this.loginForm.markAllAsTouched(); // Show all validation errors
     }
   }
-
+*/
 }

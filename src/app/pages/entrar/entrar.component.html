@@ -6,7 +6,7 @@
     <h1 class="text-center text-blue-600 mb-2 text-2xl font-bold">Fazer Login</h1>
     <p class="text-center text-gray-500 mb-2">Transforme a sua paixão em arte com nossa vitrine.</p>
 
-    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+    <form [formGroup]="loginForm" (ngSubmit)="entrar()">
 
       <div *ngIf="errorMessage" class="mb-4 p-3 text-sm text-red-700 bg-red-100 rounded-lg" role="alert">
         {{ errorMessage }}

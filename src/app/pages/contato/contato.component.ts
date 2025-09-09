@@ -21,7 +21,7 @@ export class ContatoComponent {
   results: string[] = [];
   private apiUrl = 'http://localhost:8081/api';
   constructor(
-    private authService: AuthService, 
+    private authService: AuthService,
     private router: Router,
     private http: HttpClient,
     private route: ActivatedRoute

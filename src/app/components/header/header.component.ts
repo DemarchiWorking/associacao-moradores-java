@@ -5,6 +5,7 @@ import { CarrinhoServiceService } from '../../services/carrinho-service.service'
 import { Subscription } from 'rxjs';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../services/autenticacao/auth.service';
+import { initFlowbite } from 'flowbite';
 
 @Component({
   selector: 'app-header',
@@ -25,6 +26,11 @@ export class HeaderComponent implements OnInit, OnDestroy {
   constructor(private carrinhoService: CarrinhoServiceService, private authService: AuthService) {}
 
   ngOnInit(): void {
+    this.authService.logginSucess().subscribe(() => {
+      setTimeout(() => {
+        initFlowbite();
+      }, 0);
+    });
     // Inscreve-se no Observable carrinho$ para atualizar automaticamente
     this.carrinhoSubscription = this.carrinhoService.carrinho$.subscribe(carrinho => {
       this.carrinho = carrinho;
